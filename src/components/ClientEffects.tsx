@@ -36,7 +36,7 @@ export default function ClientEffects() {
       });
     };
 
-    const forms = Array.from(document.querySelectorAll("form"));
+    const forms = Array.from(document.querySelectorAll("form.js-fake-subscribe"));
     forms.forEach((f) => f.addEventListener("submit", onSubmit));
 
     return () => {

@@ -252,7 +252,7 @@ export default async function ArticlePage({
                 <div className="bh">Stay informed</div>
                 <div className="bb">
                   <p>Finance news worth five minutes, every morning.</p>
-                  <form>
+                  <form className="js-fake-subscribe">
                     <input type="email" placeholder="Work email" required />
                     <button className="btn btn-solid" type="submit">
                       Subscribe

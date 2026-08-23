@@ -129,7 +129,7 @@ export default async function Page() {
                   The finance headlines that matter, in your inbox each
                   morning. Free.
                 </p>
-                <form>
+                <form className="js-fake-subscribe">
                   <input type="email" placeholder="Work email" required />
                   <button className="btn btn-solid" type="submit">
                     Sign up
@@ -227,7 +227,7 @@ export default async function Page() {
           </div>
           <div className="gate-r gate-r-form">
             <span className="gate-r-badge">Subscribe</span>
-            <form className="gate-nl-form">
+            <form className="gate-nl-form js-fake-subscribe">
               <label htmlFor="home-nl-email" className="sr-only">
                 Work email
               </label>

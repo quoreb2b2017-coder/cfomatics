@@ -68,7 +68,7 @@ export default async function TopicPage({
                   The week&apos;s most important {topic.name.toLowerCase()}{" "}
                   stories from CFOmatics.
                 </p>
-                <form>
+                <form className="js-fake-subscribe">
                   <input type="email" placeholder="Work email" required />
                   <button className="btn btn-solid" type="submit">
                     Sign up
