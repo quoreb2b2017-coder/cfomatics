@@ -53,9 +53,10 @@ export default function AdminSidebar({ email }: { email: string | undefined }) {
       <nav className="admin-sidebar-nav" aria-label="Admin">
         <p className="admin-nav-label">Manage</p>
         {LINKS.map((link) => {
-          const active = link.exact
-            ? pathname === link.href
-            : pathname === link.href || pathname.startsWith(`${link.href}/`);
+          const active =
+            "exact" in link && link.exact
+              ? pathname === link.href
+              : pathname === link.href || pathname.startsWith(`${link.href}/`);
           return (
             <Link
               key={link.href}
