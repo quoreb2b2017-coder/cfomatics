@@ -7,6 +7,7 @@ import {
 } from "@/lib/ai/save-generated";
 
 export const maxDuration = 300;
+export const dynamic = "force-dynamic";
 
 const DAILY_ARTICLE_COUNT = 2;
 
@@ -37,7 +38,16 @@ function pickNavbarTopic(
   return ranked[0] ?? topics[0];
 }
 
+/** Vercel Cron sends GET. Manual/admin triggers may POST. */
+export async function GET(request: Request) {
+  return runGenerateCron(request);
+}
+
 export async function POST(request: Request) {
+  return runGenerateCron(request);
+}
+
+async function runGenerateCron(request: Request) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
