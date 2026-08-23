@@ -159,7 +159,7 @@ export default async function AdminDashboardPage() {
         </div>
         {!logs || logs.length === 0 ? (
           <p className="admin-empty">
-            No generation runs yet. Daily cron publishes 2 articles at 9:00
+            No generation runs yet. Daily cron publishes 2 articles at 9:20
             PM IST via <code>/api/cron/generate-article</code>.
           </p>
         ) : (
