@@ -32,7 +32,7 @@ export default function TopicSearchBox({
         const data = await res.json();
         setResults(data.results ?? []);
       } catch {
-        // aborted — next keystroke supersedes this request
+        // aborted - next keystroke supersedes this request
       }
     }, 200);
     return () => {

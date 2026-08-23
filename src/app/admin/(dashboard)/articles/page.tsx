@@ -5,6 +5,8 @@ import {
   toggleArticleStatus,
 } from "@/lib/actions/articles";
 import type { ArticleWithTopic } from "@/types/database";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { hydrateArticleSeo } from "@/lib/seo";
 
 export default async function AdminArticlesPage() {
   const supabase = await createClient();
@@ -17,68 +19,96 @@ export default async function AdminArticlesPage() {
 
   return (
     <>
-      <div className="admin-toolbar">
-        <h1 style={{ marginBottom: 0 }}>Articles</h1>
-        <Link href="/admin/articles/new" className="btn btn-solid">
-          + New article
-        </Link>
-      </div>
+      <AdminPageHeader
+        kicker="Content"
+        title="Articles"
+        description={`${articles.length} stor${articles.length === 1 ? "y" : "ies"} in the CMS.`}
+        action={
+          <Link href="/admin/articles/new#generate" className="btn btn-solid">
+            New article
+          </Link>
+        }
+      />
 
-      <div className="admin-card">
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Topic</th>
-              <th>Status</th>
-              <th>Source</th>
-              <th>Updated</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {articles.map((a) => (
-              <tr key={a.id}>
-                <td>
-                  <Link href={`/admin/articles/${a.id}/edit`}>{a.title}</Link>
-                </td>
-                <td>{a.topic?.name ?? "—"}</td>
-                <td>
-                  <span className={`admin-badge ${a.status}`}>{a.status}</span>
-                </td>
-                <td>{a.source}</td>
-                <td>{new Date(a.updated_at).toLocaleDateString()}</td>
-                <td>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <form
-                      action={toggleArticleStatus.bind(
-                        null,
-                        a.id,
-                        a.status === "published" ? "draft" : "published",
-                      )}
-                    >
-                      <button type="submit" className="btn btn-ghost">
-                        {a.status === "published" ? "Unpublish" : "Publish"}
-                      </button>
-                    </form>
-                    <form action={deleteArticle.bind(null, a.id)}>
-                      <button type="submit" className="btn btn-ghost">
-                        Delete
-                      </button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {articles.length === 0 && (
+      <div className="admin-card admin-card--flush">
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
               <tr>
-                <td colSpan={6} style={{ color: "var(--ink-2)" }}>
-                  No articles yet.
-                </td>
+                <th>Title / H1</th>
+                <th>Meta title</th>
+                <th>Keywords</th>
+                <th>Topic</th>
+                <th>Status</th>
+                <th></th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {articles.map((a) => {
+                const seo = hydrateArticleSeo(a, a.topic?.name);
+                return (
+                <tr key={a.id}>
+                  <td>
+                    <Link href={`/admin/articles/${a.id}/edit`}>{a.title}</Link>
+                    <div className="admin-td-sub">H1 · {a.title.length} chars</div>
+                  </td>
+                  <td>
+                    <span className="admin-seo-cell">{seo.metaTitle}</span>
+                    <div className="admin-td-sub">
+                      {seo.metaTitle.length}/60 · OG: {seo.ogTitle.slice(0, 42)}
+                      {seo.ogTitle.length > 42 ? "…" : ""}
+                    </div>
+                  </td>
+                  <td>
+                    <span className="admin-seo-cell">{seo.keywords}</span>
+                    <div className="admin-td-sub">
+                      AEO {seo.aeoAnswer ? "yes" : "derived"} · GEO{" "}
+                      {seo.geoSummary ? "yes" : "derived"}
+                    </div>
+                  </td>
+                  <td>{a.topic?.name ?? "-"}</td>
+                  <td>
+                    <span className={`admin-badge ${a.status}`}>{a.status}</span>
+                  </td>
+                  <td>
+                    <div className="admin-row-actions">
+                      <Link
+                        href={`/admin/articles/${a.id}/edit`}
+                        className="btn btn-solid"
+                      >
+                        Edit
+                      </Link>
+                      <form
+                        action={toggleArticleStatus.bind(
+                          null,
+                          a.id,
+                          a.status === "published" ? "draft" : "published",
+                        )}
+                      >
+                        <button type="submit" className="btn btn-ghost">
+                          {a.status === "published" ? "Unpublish" : "Publish"}
+                        </button>
+                      </form>
+                      <form action={deleteArticle.bind(null, a.id)}>
+                        <button type="submit" className="btn btn-ghost">
+                          Delete
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+                );
+              })}
+              {articles.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="admin-empty">
+                    No articles yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );

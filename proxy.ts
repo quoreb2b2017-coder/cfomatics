@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Next.js 16 renamed the middleware.ts convention to proxy.ts — same
+// Next.js 16 renamed the middleware.ts convention to proxy.ts - same
 // location/behavior, new export name. Guards /admin/** (except /admin/login).
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -32,7 +32,14 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
+  const isApiAdmin = pathname.startsWith("/api/admin");
   const isLoginPage = pathname === "/admin/login";
+
+  // Refresh the auth cookie on admin API calls, but do not redirect them
+  // to the login HTML page (the route should return JSON 401 itself).
+  if (isApiAdmin) {
+    return response;
+  }
 
   if (!user && !isLoginPage) {
     const loginUrl = new URL("/admin/login", request.url);
@@ -48,5 +55,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*"],
 };

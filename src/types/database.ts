@@ -30,6 +30,9 @@ export type ArticleBody = {
   seo?: {
     focus_keyword?: string;
     og_title?: string;
+    keywords?: string;
+    aeo_answer?: string;
+    geo_summary?: string;
   };
 };
 

@@ -2,7 +2,7 @@ import "server-only";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
 
-// Service-role client — bypasses RLS. Only for trusted server code that
+// Service-role client - bypasses RLS. Only for trusted server code that
 // runs without a user session (the cron generation route). Never import
 // this from a Server Component/Action that handles a user request.
 export function createAdminClient() {

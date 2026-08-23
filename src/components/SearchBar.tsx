@@ -44,7 +44,7 @@ export default function SearchBar() {
         const data = await res.json();
         setResults(data.results ?? []);
       } catch {
-        // aborted or network error — ignore, next keystroke will retry
+        // aborted or network error - ignore, next keystroke will retry
       }
     }, 200);
     return () => {

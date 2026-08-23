@@ -22,7 +22,7 @@ export async function createClient() {
             }
           } catch {
             // Called from a Server Component with no response to write to
-            // (e.g. rendering, not a Server Action) — session refresh is
+            // (e.g. rendering, not a Server Action) - session refresh is
             // handled by proxy.ts instead. Safe to ignore.
           }
         },

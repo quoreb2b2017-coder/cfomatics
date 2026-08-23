@@ -7,7 +7,9 @@ import ArticleBody from "@/components/ArticleBody";
 import CoverImage from "@/components/CoverImage";
 import JsonLd from "@/components/JsonLd";
 import { ArticleGridCard } from "@/components/ArticleCard";
+import SubscribePopup from "@/components/SubscribePopup";
 import { getArticleBySlug, getArticlesByTopicSlug, getLatestArticles } from "@/lib/articles";
+import { parseKeywordList, hydrateArticleSeo } from "@/lib/seo";
 
 export const revalidate = 300;
 
@@ -20,17 +22,23 @@ export async function generateMetadata({
   const article = await getArticleBySlug(slug);
   if (!article) return {};
 
-  const title = article.meta_title || article.title;
-  const description = article.meta_description || article.dek;
+  const seo = hydrateArticleSeo(article, article.topic?.name);
+  const title = seo.metaTitle || article.title;
+  const description = seo.metaDescription || article.dek;
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.cfomatics.com";
   const url = `${siteUrl}/article/${article.slug}`;
-  const ogTitle =
-    article.body_json?.seo?.og_title || article.title || title;
+  const ogTitle = seo.ogTitle || article.title || title;
+  const keywordList = [
+    ...parseKeywordList(seo.keywords),
+    seo.focusKeyword,
+    article.topic?.name,
+  ].filter((k, i, arr): k is string => Boolean(k) && arr.indexOf(k) === i);
 
   return {
     title,
     description,
+    keywords: keywordList.length ? keywordList : undefined,
     alternates: { canonical: url },
     openGraph: {
       title: ogTitle,
@@ -43,6 +51,7 @@ export async function generateMetadata({
       modifiedTime: article.updated_at,
       authors: [article.author_name],
       section: article.topic?.name,
+      tags: keywordList.length ? keywordList : undefined,
       images: article.cover_image_url
         ? [
             {
@@ -92,16 +101,20 @@ export default async function ArticlePage({
   const moreInTopic = related.slice(0, 4);
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.cfomatics.com";
+  const seo = hydrateArticleSeo(article, article.topic?.name);
 
   return (
     <>
       <SiteHeader />
+      <SubscribePopup articleTitle={article.title} />
       <JsonLd
         data={{
           "@context": "https://schema.org",
           "@type": "Article",
           headline: article.title,
-          description: article.dek,
+          description: seo.metaDescription || article.dek,
+          abstract: seo.geoSummary || article.dek,
+          keywords: seo.keywords,
           image: article.cover_image_url ? [article.cover_image_url] : undefined,
           datePublished: article.published_at,
           dateModified: article.updated_at,

@@ -11,7 +11,7 @@ export default function CoverImage({
 }: {
   src: string | null;
   alt: string | null;
-  /** Unique per-article key (slug or id) — drives fallback art. */
+  /** Unique per-article key (slug or id) - drives fallback art. */
   seed: string;
   /** Optional badge text on fallback art (topic name). */
   label?: string | null;

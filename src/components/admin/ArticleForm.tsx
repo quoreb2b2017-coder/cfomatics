@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Article, Topic } from "@/types/database";
+import { SEO_LIMITS, clampToLimit, hydrateArticleSeo } from "@/lib/seo";
 
 interface SectionDraft {
   heading: string;
@@ -27,6 +28,17 @@ function bodyToSectionDrafts(article?: Article | null): SectionDraft[] {
   }));
 }
 
+function CharCount({ value, max }: { value: string; max: number }) {
+  const n = value.length;
+  const cls =
+    n > max ? "is-over" : n >= Math.floor(max * 0.9) ? "is-warn" : "";
+  return (
+    <span className={`seo-count ${cls}`}>
+      {n}/{max}
+    </span>
+  );
+}
+
 export default function ArticleForm({
   action,
   article,
@@ -50,6 +62,28 @@ export default function ArticleForm({
   const [pexelsQuery, setPexelsQuery] = useState("");
   const [pexelsResults, setPexelsResults] = useState<PexelsResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [title, setTitle] = useState(
+    clampToLimit(article?.title ?? "", SEO_LIMITS.h1),
+  );
+  const seededSeo = hydrateArticleSeo(
+    article ?? {
+      title: "",
+      dek: "",
+      meta_title: null,
+      meta_description: null,
+      body_json: null,
+    },
+    topics.find((t) => t.id === article?.topic_id)?.name,
+  );
+  const [metaTitle, setMetaTitle] = useState(seededSeo.metaTitle);
+  const [metaDescription, setMetaDescription] = useState(
+    seededSeo.metaDescription,
+  );
+  const [ogTitle, setOgTitle] = useState(seededSeo.ogTitle);
+  const [focusKeyword, setFocusKeyword] = useState(seededSeo.focusKeyword);
+  const [seoKeywords, setSeoKeywords] = useState(seededSeo.keywords);
+  const [aeoAnswer, setAeoAnswer] = useState(seededSeo.aeoAnswer);
+  const [geoSummary, setGeoSummary] = useState(seededSeo.geoSummary);
 
   const sectionsJson = JSON.stringify(
     sections
@@ -106,13 +140,23 @@ export default function ArticleForm({
       <div className="admin-card">
         <h2>Basics</h2>
         <div className="field">
-          <label htmlFor="title">Title</label>
+          <label htmlFor="title">
+            H1 / headline
+            <CharCount value={title} max={SEO_LIMITS.h1} />
+          </label>
           <input
             id="title"
             name="title"
-            defaultValue={article?.title}
+            value={title}
+            onChange={(e) =>
+              setTitle(e.target.value.slice(0, SEO_LIMITS.h1))
+            }
+            maxLength={SEO_LIMITS.h1}
             required
           />
+          <span className="field-hint">
+            On-page H1. Max {SEO_LIMITS.h1} characters. Shorter is fine.
+          </span>
         </div>
         <div className="field">
           <label htmlFor="slug">Slug (leave blank to auto-generate)</label>
@@ -130,7 +174,7 @@ export default function ArticleForm({
               name="topic_id"
               defaultValue={article?.topic_id ?? ""}
             >
-              <option value="">— None —</option>
+              <option value="">- None -</option>
               {topics.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.name}
@@ -160,6 +204,149 @@ export default function ArticleForm({
               defaultValue={article?.read_time_minutes ?? 5}
             />
           </div>
+        </div>
+      </div>
+
+      <div className="admin-card">
+        <div className="admin-card-head">
+          <h2>SEO &amp; Open Graph</h2>
+        </div>
+        <p className="field-hint" style={{ marginTop: -8, marginBottom: 16 }}>
+          Standard SEO lengths are a hard max. Shorter is fine. The form
+          will not accept text over the count.
+        </p>
+        <div className="field">
+          <label htmlFor="focus_keyword">
+            Focus keyword
+            <CharCount value={focusKeyword} max={SEO_LIMITS.focusKeyword} />
+          </label>
+          <input
+            id="focus_keyword"
+            name="focus_keyword"
+            value={focusKeyword}
+            onChange={(e) =>
+              setFocusKeyword(e.target.value.slice(0, SEO_LIMITS.focusKeyword))
+            }
+            maxLength={SEO_LIMITS.focusKeyword}
+            placeholder="e.g. CFO succession planning"
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="seo_keywords">
+            SEO keywords
+            <CharCount value={seoKeywords} max={SEO_LIMITS.keywords} />
+          </label>
+          <input
+            id="seo_keywords"
+            name="seo_keywords"
+            value={seoKeywords}
+            onChange={(e) =>
+              setSeoKeywords(e.target.value.slice(0, SEO_LIMITS.keywords))
+            }
+            maxLength={SEO_LIMITS.keywords}
+            placeholder="Comma-separated, 5-8 phrases"
+          />
+          <span className="field-hint">
+            Max {SEO_LIMITS.keywords} characters. Example: CFO succession,
+            finance leadership, interim CFO
+          </span>
+        </div>
+        <div className="field">
+          <label htmlFor="meta_title">
+            Meta title (browser / Google)
+            <CharCount value={metaTitle} max={SEO_LIMITS.metaTitle} />
+          </label>
+          <input
+            id="meta_title"
+            name="meta_title"
+            value={metaTitle}
+            onChange={(e) =>
+              setMetaTitle(e.target.value.slice(0, SEO_LIMITS.metaTitle))
+            }
+            maxLength={SEO_LIMITS.metaTitle}
+            placeholder="Keyword first, end with | CFOmatics"
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="meta_description">
+            Meta description
+            <CharCount
+              value={metaDescription}
+              max={SEO_LIMITS.metaDescription}
+            />
+          </label>
+          <textarea
+            id="meta_description"
+            name="meta_description"
+            value={metaDescription}
+            onChange={(e) =>
+              setMetaDescription(
+                e.target.value.slice(0, SEO_LIMITS.metaDescription),
+              )
+            }
+            maxLength={SEO_LIMITS.metaDescription}
+            rows={3}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="og_title">
+            Open Graph title (Facebook / LinkedIn / Twitter)
+            <CharCount value={ogTitle} max={SEO_LIMITS.ogTitle} />
+          </label>
+          <input
+            id="og_title"
+            name="og_title"
+            value={ogTitle}
+            onChange={(e) =>
+              setOgTitle(e.target.value.slice(0, SEO_LIMITS.ogTitle))
+            }
+            maxLength={SEO_LIMITS.ogTitle}
+            placeholder="Social share headline, no brand suffix needed"
+          />
+        </div>
+        <div className="seo-preview" aria-hidden>
+          <span className="seo-preview-label">Google preview</span>
+          <p className="seo-preview-title">
+            {metaTitle || title || "Meta title"}
+          </p>
+          <p className="seo-preview-url">cfomatics.com › article › slug</p>
+          <p className="seo-preview-desc">
+            {metaDescription || "Meta description appears here."}
+          </p>
+        </div>
+        <div className="field" style={{ marginTop: 18 }}>
+          <label htmlFor="aeo_answer">
+            AEO answer (AI Overviews / voice)
+            <CharCount value={aeoAnswer} max={SEO_LIMITS.aeoAnswer} />
+          </label>
+          <textarea
+            id="aeo_answer"
+            name="aeo_answer"
+            value={aeoAnswer}
+            onChange={(e) =>
+              setAeoAnswer(e.target.value.slice(0, SEO_LIMITS.aeoAnswer))
+            }
+            maxLength={SEO_LIMITS.aeoAnswer}
+            rows={3}
+            placeholder="Direct 2-4 sentence answer Google / ChatGPT can cite"
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="geo_summary">
+            GEO summary (ChatGPT / Perplexity)
+            <CharCount value={geoSummary} max={SEO_LIMITS.geoSummary} />
+          </label>
+          <textarea
+            id="geo_summary"
+            name="geo_summary"
+            value={geoSummary}
+            onChange={(e) =>
+              setGeoSummary(e.target.value.slice(0, SEO_LIMITS.geoSummary))
+            }
+            maxLength={SEO_LIMITS.geoSummary}
+            rows={3}
+            placeholder="Neutral, citation-friendly summary of the article"
+          />
         </div>
       </div>
 
@@ -212,7 +399,7 @@ export default function ArticleForm({
 
         {coverUrl && (
           <p style={{ fontSize: 13, color: "var(--ink-2)", marginTop: 10 }}>
-            Selected — photo by {coverCredit || "unknown"}
+            Selected - photo by {coverCredit || "unknown"}
           </p>
         )}
 
@@ -234,7 +421,7 @@ export default function ArticleForm({
         {article?.body_json.chart && (
           <p style={{ fontSize: 13, color: "var(--ink-2)", marginTop: -6, marginBottom: 16 }}>
             This article has an AI-generated chart (&ldquo;{article.body_json.chart.title}
-            &rdquo;) that will be kept as-is — there&apos;s no chart editor here yet.
+            &rdquo;) that will be kept as-is - there&apos;s no chart editor here yet.
           </p>
         )}
         <div className="field">
@@ -312,26 +499,6 @@ export default function ArticleForm({
             name="takeaways"
             rows={4}
             defaultValue={article?.body_json.takeaways?.join("\n")}
-          />
-        </div>
-      </div>
-
-      <div className="admin-card">
-        <h2>SEO</h2>
-        <div className="field">
-          <label htmlFor="meta_title">Meta title</label>
-          <input
-            id="meta_title"
-            name="meta_title"
-            defaultValue={article?.meta_title ?? ""}
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="meta_description">Meta description</label>
-          <textarea
-            id="meta_description"
-            name="meta_description"
-            defaultValue={article?.meta_description ?? ""}
           />
         </div>
       </div>

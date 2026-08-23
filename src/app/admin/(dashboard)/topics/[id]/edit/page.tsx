@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { updateTopic } from "@/lib/actions/topics";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 export default async function EditTopicPage({
   params,
@@ -19,7 +20,13 @@ export default async function EditTopicPage({
 
   return (
     <>
-      <h1>Edit topic</h1>
+      <AdminPageHeader
+        kicker="Taxonomy"
+        title="Edit topic"
+        description={topic.name}
+        backHref="/admin/topics"
+        backLabel="Topics"
+      />
       <div className="admin-card">
         <form action={updateTopic.bind(null, id)}>
           <div className="field">

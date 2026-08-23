@@ -1,7 +1,8 @@
-  import { notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { updateArticle } from "@/lib/actions/articles";
 import ArticleForm from "@/components/admin/ArticleForm";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 
 export default async function EditArticlePage({
   params,
@@ -20,7 +21,13 @@ export default async function EditArticlePage({
 
   return (
     <>
-      <h1>Edit article</h1>
+      <AdminPageHeader
+        kicker="Content"
+        title="Edit article"
+        description={article.title}
+        backHref="/admin/articles"
+        backLabel="Articles"
+      />
       <ArticleForm
         action={updateArticle.bind(null, id)}
         article={article}

@@ -1,10 +1,11 @@
 import type { ArticleBody as ArticleBodyJson } from "@/types/database";
 import ArticleChart from "@/components/ArticleChart";
+import { normalizeDashes } from "@/lib/text";
 
-// Renders **bold** inline markup only — the one intentional exception to
+// Renders **bold** inline markup only - the one intentional exception to
 // storing body_json as plain strings (see supabase/schema.sql).
 function InlineText({ text }: { text: string }) {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  const parts = normalizeDashes(text).split(/(\*\*[^*]+\*\*)/g);
   return (
     <>
       {parts.map((part, i) =>
@@ -34,7 +35,7 @@ export default function ArticleBody({ body }: { body: ArticleBodyJson }) {
       {isValidChart(body) && body.chart && <ArticleChart chart={body.chart} />}
       {body.sections.map((section, i) => (
         <div key={i}>
-          {section.heading && <h2>{section.heading}</h2>}
+          {section.heading && <h2>{normalizeDashes(section.heading)}</h2>}
           {section.paragraphs.map((p, j) => (
             <p key={j}>
               <InlineText text={p} />

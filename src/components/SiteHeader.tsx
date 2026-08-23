@@ -14,7 +14,11 @@ function todayLabel() {
   }).format(new Date());
 }
 
-export default async function SiteHeader() {
+export default async function SiteHeader({
+  showTicker = true,
+}: {
+  showTicker?: boolean;
+} = {}) {
   const topics = await getTopics();
   const topicLinks = topics.map((t) => ({
     id: t.id,
@@ -66,7 +70,7 @@ export default async function SiteHeader() {
       </header>
       <HeaderSpacer />
 
-      {topicLinks.length > 0 && (
+      {showTicker && topicLinks.length > 0 && (
         <div className="ticker" aria-hidden>
           <div className="ticker-track">
             {[...topicLinks, ...topicLinks].map((t, i) => (

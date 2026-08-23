@@ -43,7 +43,7 @@ export const getArticlesByTopicSlug = cache(
       return [];
     }
     // Supabase's embedded-filter (`eq("topic.slug", ...)`) still returns rows
-    // whose topic doesn't match with topic: null in some PostgREST versions —
+    // whose topic doesn't match with topic: null in some PostgREST versions -
     // filter defensively client-side too.
     return ((data ?? []) as unknown as ArticleWithTopic[])
       .filter((a) => a.topic?.slug === topicSlug)

@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     .eq("status", "published")
     .ilike("title", `%${q}%`);
 
-  // Scope to one topic — e.g. searching titles within Technology only.
+  // Scope to one topic - e.g. searching titles within Technology only.
   if (topicSlug) {
     query = query.eq("topic.slug", topicSlug);
   }
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
       const topic = Array.isArray(a.topic) ? a.topic[0] : a.topic;
       return { title: a.title, href: `/article/${a.slug}`, topic: topic?.name ?? null, topicSlug: topic?.slug ?? null };
     })
-    // Same defensive re-check as getArticlesByTopicSlug — the embedded
+    // Same defensive re-check as getArticlesByTopicSlug - the embedded
     // .eq("topic.slug", ...) filter can leak non-matching rows on some
     // PostgREST versions.
     .filter((r) => !topicSlug || r.topicSlug === topicSlug);

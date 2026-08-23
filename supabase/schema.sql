@@ -45,7 +45,7 @@ create index if not exists articles_status_published_at_idx
 create index if not exists articles_topic_id_idx on public.articles (topic_id);
 
 -- ---------------------------------------------------------------------------
--- generation_log — observability for the AI auto-publish cron
+-- generation_log - observability for the AI auto-publish cron
 -- ---------------------------------------------------------------------------
 create table if not exists public.generation_log (
   id uuid primary key default gen_random_uuid(),
@@ -57,7 +57,7 @@ create table if not exists public.generation_log (
 );
 
 -- ---------------------------------------------------------------------------
--- admin_users — explicit allowlist of who may use /admin
+-- admin_users - explicit allowlist of who may use /admin
 -- After creating your login user in Authentication > Users, insert their
 -- auth.users id here, e.g.:
 --   insert into public.admin_users (user_id) values ('00000000-0000-0000-0000-000000000000');
