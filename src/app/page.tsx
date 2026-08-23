@@ -3,7 +3,11 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import CoverImage from "@/components/CoverImage";
 import { ArticleCard, ArticleGridCard } from "@/components/ArticleCard";
-import { getLatestArticles, getArticlesByTopicSlug } from "@/lib/articles";
+import {
+  getLatestArticles,
+  getArticlesByTopicSlug,
+  fillArticleRow,
+} from "@/lib/articles";
 import { getTopics } from "@/lib/topics";
 
 export const revalidate = 300;
@@ -26,14 +30,13 @@ export default async function Page() {
   const topicSections = await Promise.all(
     topics.map(async (topic) => ({
       topic,
-      articles: await getArticlesByTopicSlug(topic.slug, 3),
+      articles: await getArticlesByTopicSlug(topic.slug, 6),
     })),
   );
 
   const [lead, ...rest] = latest;
   const topStories = rest.slice(0, 4);
-  // Main feed: only 3 latest stories. Full topic coverage lives in sections below.
-  const feed = rest.slice(0, 3);
+  const feed = rest.slice(0, 8);
 
   if (!lead) {
     return (
@@ -109,9 +112,9 @@ export default async function Page() {
         <div className="body-grid">
           <main className="feed">
             <div className="shead">
-              <h2>Latest stories</h2>
+              <h2>Latest 8</h2>
               <span className="more" style={{ cursor: "default" }}>
-                Showing {feed.length}
+                Newest stories
               </span>
             </div>
             {feed.map((article) => (
@@ -189,7 +192,9 @@ export default async function Page() {
 
       {topicSections
         .filter((s) => s.articles.length > 0)
-        .map(({ topic, articles }, index) => (
+        .map(({ topic, articles }, index) => {
+          const row = fillArticleRow(articles, latest, 3, []);
+          return (
           <div
             key={topic.id}
             className={`band ${index % 2 === 0 ? "paper2" : ""}`}
@@ -204,13 +209,14 @@ export default async function Page() {
                 </Link>
               </div>
               <div className="cgrid">
-                {articles.map((a) => (
+                {row.map((a) => (
                   <ArticleGridCard key={a.id} article={a} />
                 ))}
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
 
       <div className="wrap" style={{ padding: "44px 0 56px" }} id="nl">
         <div className="gate gate-nl">

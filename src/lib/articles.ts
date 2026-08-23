@@ -30,11 +30,23 @@ export const getLatestArticles = cache(
 export const getArticlesByTopicSlug = cache(
   async (topicSlug: string, limit = 30): Promise<ArticleWithTopic[]> => {
     const supabase = await createClient();
+    const { data: topic, error: topicError } = await supabase
+      .from("topics")
+      .select("id")
+      .eq("slug", topicSlug)
+      .maybeSingle();
+
+    if (topicError) {
+      console.error("getArticlesByTopicSlug topic lookup failed:", topicError.message);
+      return [];
+    }
+    if (!topic) return [];
+
     const { data, error } = await supabase
       .from("articles")
       .select(PUBLISHED_SELECT)
       .eq("status", "published")
-      .eq("topic.slug", topicSlug)
+      .eq("topic_id", topic.id)
       .order("published_at", { ascending: false })
       .limit(limit);
 
@@ -42,14 +54,32 @@ export const getArticlesByTopicSlug = cache(
       console.error("getArticlesByTopicSlug failed:", error.message);
       return [];
     }
-    // Supabase's embedded-filter (`eq("topic.slug", ...)`) still returns rows
-    // whose topic doesn't match with topic: null in some PostgREST versions -
-    // filter defensively client-side too.
+
     return ((data ?? []) as unknown as ArticleWithTopic[])
       .filter((a) => a.topic?.slug === topicSlug)
       .map(sanitizeArticle);
   },
 );
+
+/** Fill a homepage/topic row to `count` cards, topic stories first. */
+export function fillArticleRow(
+  primary: ArticleWithTopic[],
+  pool: ArticleWithTopic[],
+  count = 3,
+  excludeIds: Iterable<string> = [],
+): ArticleWithTopic[] {
+  const out: ArticleWithTopic[] = [];
+  const used = new Set(excludeIds);
+  for (const list of [primary, pool]) {
+    for (const article of list) {
+      if (out.length >= count) return out;
+      if (used.has(article.id)) continue;
+      out.push(article);
+      used.add(article.id);
+    }
+  }
+  return out;
+}
 
 export const getArticleBySlug = cache(
   async (slug: string): Promise<ArticleWithTopic | null> => {

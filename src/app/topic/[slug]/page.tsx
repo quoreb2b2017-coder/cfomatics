@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { ArticleCard } from "@/components/ArticleCard";
+import { ArticleCard, ArticleGridCard } from "@/components/ArticleCard";
 import TopicSearchBox from "@/components/TopicSearchBox";
 import { getTopicBySlug } from "@/lib/topics";
-import { getArticlesByTopicSlug } from "@/lib/articles";
+import { fillArticleRow, getArticlesByTopicSlug, getLatestArticles } from "@/lib/articles";
 
 export const revalidate = 300;
 
@@ -35,7 +36,18 @@ export default async function TopicPage({
   const topic = await getTopicBySlug(slug);
   if (!topic) notFound();
 
-  const articles = await getArticlesByTopicSlug(slug, 30);
+  const [articles, latest] = await Promise.all([
+    getArticlesByTopicSlug(slug, 30),
+    getLatestArticles(12),
+  ]);
+  const featured = fillArticleRow(articles, latest, 3);
+  const rest = articles.filter((a) => !featured.some((f) => f.id === a.id));
+  const more = fillArticleRow(
+    [],
+    latest,
+    3,
+    [...featured, ...rest].map((a) => a.id),
+  );
 
   return (
     <>
@@ -51,12 +63,19 @@ export default async function TopicPage({
         <div className="body-grid">
           <main className="feed">
             <TopicSearchBox topicSlug={topic.slug} topicName={topic.name} />
+            {featured.length > 0 && (
+              <div className="cgrid" style={{ marginBottom: 28 }}>
+                {featured.map((a) => (
+                  <ArticleGridCard key={a.id} article={a} />
+                ))}
+              </div>
+            )}
             {articles.length === 0 && (
               <p style={{ color: "var(--ink-2)" }}>
                 No articles published in this topic yet.
               </p>
             )}
-            {articles.map((article) => (
+            {rest.map((article) => (
               <ArticleCard key={article.id} article={article} />
             ))}
           </main>
@@ -79,9 +98,54 @@ export default async function TopicPage({
                 </form>
               </div>
             </div>
+            {latest.length > 0 && (
+              <div className="box">
+                <div className="bh">Most read</div>
+                <div className="bb">
+                  <ol className="mostread">
+                    {latest.slice(0, 5).map((a, i) => (
+                      <li key={a.id}>
+                        <span className="n">{i + 1}</span>
+                        <Link href={`/article/${a.slug}`}>{a.title}</Link>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </div>
+            )}
+            <div className="promo">
+              <span className="tg">Free report</span>
+              <h4>2026 CFO Priorities Benchmark</h4>
+              <p>
+                How finance leaders are allocating budget, headcount, and
+                technology this year.
+              </p>
+              <Link href="/resources" className="btn btn-ghost">
+                Download →
+              </Link>
+            </div>
           </aside>
         </div>
       </div>
+      {more.length > 0 && (
+        <div className="band paper2">
+          <div className="wrap">
+            <div className="shead">
+              <h2>
+                More from CFOmatics <span className="kicker">Section</span>
+              </h2>
+              <Link href="/" className="more">
+                All stories →
+              </Link>
+            </div>
+            <div className="cgrid">
+              {more.map((a) => (
+                <ArticleGridCard key={a.id} article={a} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       <SiteFooter />
     </>
   );
