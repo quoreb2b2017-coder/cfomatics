@@ -11,6 +11,7 @@ export default async function AdminDashboardPage() {
     { count: draftCount },
     { count: topicCount },
     { count: failedCount },
+    { count: subscriberCount },
     { data: logs },
     { data: recentRows },
   ] = await Promise.all([
@@ -27,6 +28,7 @@ export default async function AdminDashboardPage() {
       .from("generation_log")
       .select("*", { count: "exact", head: true })
       .eq("status", "failed"),
+    supabase.from("subscribers").select("*", { count: "exact", head: true }),
     supabase
       .from("generation_log")
       .select("*, article:articles(slug, title)")
@@ -77,6 +79,11 @@ export default async function AdminDashboardPage() {
           <span className="admin-stat-label">Failed runs</span>
           <span className="n">{failedCount ?? 0}</span>
           <span className="l">Last run {lastRun}</span>
+        </div>
+        <div className="admin-stat">
+          <span className="admin-stat-label">Subscribers</span>
+          <span className="n">{subscriberCount ?? 0}</span>
+          <span className="l">Emails from the public site</span>
         </div>
       </div>
 
@@ -133,6 +140,10 @@ export default async function AdminDashboardPage() {
             <Link href="/admin/topics" className="admin-action">
               <strong>Manage topics</strong>
               <span>Navbar categories</span>
+            </Link>
+            <Link href="/admin/subscribers" className="admin-action">
+              <strong>Subscribers</strong>
+              <span>Emails and which blogs they signed up for</span>
             </Link>
             <Link href="/" className="admin-action">
               <strong>Open public site</strong>

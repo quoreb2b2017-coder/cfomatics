@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { pexelsPhotoKey, searchPexelsPhoto } from "@/lib/ai/pexels";
+import { revalidateSitemap } from "@/lib/site";
 
 export const maxDuration = 300;
 
@@ -156,7 +157,7 @@ export async function POST(request: Request) {
   }
 
   revalidatePath("/");
-  revalidatePath("/sitemap.xml");
+  revalidateSitemap();
 
   return NextResponse.json({
     ok: true,

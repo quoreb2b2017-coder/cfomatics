@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/articles";
+import { revalidateSitemap } from "@/lib/site";
 
 export async function createTopic(formData: FormData) {
   const supabase = await createClient();
@@ -19,6 +20,7 @@ export async function createTopic(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/admin/topics");
+  revalidateSitemap();
   redirect("/admin/topics");
 }
 
@@ -37,6 +39,7 @@ export async function updateTopic(id: string, formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/admin/topics");
+  revalidateSitemap();
   redirect("/admin/topics");
 }
 
@@ -47,4 +50,5 @@ export async function deleteTopic(id: string) {
 
   revalidatePath("/");
   revalidatePath("/admin/topics");
+  revalidateSitemap();
 }

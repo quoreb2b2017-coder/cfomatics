@@ -10,6 +10,7 @@ import { ArticleGridCard } from "@/components/ArticleCard";
 import SubscribePopup from "@/components/SubscribePopup";
 import { getArticleBySlug, getArticlesByTopicSlug, getLatestArticles } from "@/lib/articles";
 import { parseKeywordList, hydrateArticleSeo } from "@/lib/seo";
+import { getSiteUrl } from "@/lib/site";
 
 export const revalidate = 300;
 
@@ -25,8 +26,7 @@ export async function generateMetadata({
   const seo = hydrateArticleSeo(article, article.topic?.name);
   const title = seo.metaTitle || article.title;
   const description = seo.metaDescription || article.dek;
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.cfomatics.com";
+  const siteUrl = getSiteUrl();
   const url = `${siteUrl}/article/${article.slug}`;
   const ogTitle = seo.ogTitle || article.title || title;
   const keywordList = [
@@ -99,14 +99,20 @@ export default async function ArticlePage({
   ]);
 
   const moreInTopic = related.slice(0, 4);
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.cfomatics.com";
+  const siteUrl = getSiteUrl();
   const seo = hydrateArticleSeo(article, article.topic?.name);
 
   return (
     <>
       <SiteHeader />
-      <SubscribePopup articleTitle={article.title} />
+      <SubscribePopup
+        articleId={article.id}
+        articleSlug={article.slug}
+        articleTitle={article.title}
+        topicId={article.topic?.id}
+        topicSlug={article.topic?.slug}
+        topicName={article.topic?.name}
+      />
       <JsonLd
         data={{
           "@context": "https://schema.org",
@@ -265,8 +271,17 @@ export default async function ArticlePage({
                 <div className="bh">Stay informed</div>
                 <div className="bb">
                   <p>Finance news worth five minutes, every morning.</p>
-                  <form className="js-fake-subscribe">
-                    <input type="email" placeholder="Work email" required />
+                  <form
+                    className="js-fake-subscribe"
+                    data-source="article"
+                    data-article-id={article.id}
+                    data-article-slug={article.slug}
+                    data-article-title={article.title}
+                    data-topic-id={article.topic?.id}
+                    data-topic-slug={article.topic?.slug}
+                    data-topic-name={article.topic?.name}
+                  >
+                    <input type="email" name="email" placeholder="Work email" required />
                     <button className="btn btn-solid" type="submit">
                       Subscribe
                     </button>

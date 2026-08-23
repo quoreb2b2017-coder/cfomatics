@@ -3,11 +3,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import CoverImage from "@/components/CoverImage";
 import { ArticleCard, ArticleGridCard } from "@/components/ArticleCard";
-import {
-  getLatestArticles,
-  getArticlesByTopicSlug,
-  fillArticleRow,
-} from "@/lib/articles";
+import { getLatestArticles, getArticlesByTopicSlug } from "@/lib/articles";
 import { getTopics } from "@/lib/topics";
 
 export const revalidate = 300;
@@ -132,8 +128,8 @@ export default async function Page() {
                   The finance headlines that matter, in your inbox each
                   morning. Free.
                 </p>
-                <form className="js-fake-subscribe">
-                  <input type="email" placeholder="Work email" required />
+                <form className="js-fake-subscribe" data-source="home">
+                  <input type="email" name="email" placeholder="Work email" required />
                   <button className="btn btn-solid" type="submit">
                     Sign up
                   </button>
@@ -193,7 +189,7 @@ export default async function Page() {
       {topicSections
         .filter((s) => s.articles.length > 0)
         .map(({ topic, articles }, index) => {
-          const row = fillArticleRow(articles, latest, 3, []);
+          const row = articles.slice(0, 3);
           return (
           <div
             key={topic.id}
@@ -233,7 +229,7 @@ export default async function Page() {
           </div>
           <div className="gate-r gate-r-form">
             <span className="gate-r-badge">Subscribe</span>
-            <form className="gate-nl-form js-fake-subscribe">
+            <form className="gate-nl-form js-fake-subscribe" data-source="home">
               <label htmlFor="home-nl-email" className="sr-only">
                 Work email
               </label>

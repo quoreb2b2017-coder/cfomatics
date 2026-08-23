@@ -57,7 +57,7 @@ export default function Page() {
       <div className="mono" style={{ color: '#9AA0A7', fontSize: '12px', marginTop: '8px' }}>✓ Free · ✓ Instant access · ✓ Unsubscribe anytime</div>
     </div>
     <div className="gate-r" style={{ background: 'var(--paper)', display: 'block', padding: '30px' }}>
-      <form className="lc js-fake-subscribe">
+      <form className="lc js-fake-subscribe" data-source="resources">
         <div><label>First name</label><input type="text" required /></div>
         <div><label>Last name</label><input type="text" required /></div>
         <div className="full"><label>Work email</label><input type="email" required /></div>

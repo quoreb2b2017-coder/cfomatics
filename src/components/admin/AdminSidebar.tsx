@@ -37,6 +37,16 @@ const LINKS = [
       </svg>
     ),
   },
+  {
+    href: "/admin/subscribers",
+    label: "Subscribers",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M4 6h16v12H4z" />
+        <path d="M4 7l8 6 8-6" />
+      </svg>
+    ),
+  },
 ] as const;
 
 export default function AdminSidebar({ email }: { email: string | undefined }) {

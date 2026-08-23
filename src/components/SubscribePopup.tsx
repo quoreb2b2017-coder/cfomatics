@@ -1,14 +1,29 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { SUBSCRIBED_KEY, submitSubscribe } from "@/lib/subscribe-client";
 
-const SUBSCRIBED_KEY = "cfomatics_subscribed";
-
-export default function SubscribePopup({ articleTitle }: { articleTitle?: string }) {
+export default function SubscribePopup({
+  articleId,
+  articleSlug,
+  articleTitle,
+  topicId,
+  topicSlug,
+  topicName,
+}: {
+  articleId?: string;
+  articleSlug?: string;
+  articleTitle?: string;
+  topicId?: string;
+  topicSlug?: string;
+  topicName?: string;
+}) {
   const titleId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -37,15 +52,34 @@ export default function SubscribePopup({ articleTitle }: { articleTitle?: string
     };
   }, [open]);
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const email = inputRef.current?.value.trim() ?? "";
+    setError("");
+    setPending(true);
     try {
-      window.localStorage.setItem(SUBSCRIBED_KEY, "1");
-    } catch {
-      // ignore quota / private mode
+      await submitSubscribe({
+        email,
+        source: "popup",
+        articleId,
+        articleSlug,
+        articleTitle,
+        topicId,
+        topicSlug,
+        topicName,
+      });
+      try {
+        window.localStorage.setItem(SUBSCRIBED_KEY, "1");
+      } catch {
+        // ignore quota / private mode
+      }
+      setDone(true);
+      window.setTimeout(() => setOpen(false), 1100);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not subscribe");
+    } finally {
+      setPending(false);
     }
-    setDone(true);
-    window.setTimeout(() => setOpen(false), 1100);
   }
 
   if (!open) return null;
@@ -91,13 +125,19 @@ export default function SubscribePopup({ articleTitle }: { articleTitle?: string
             placeholder="Work email"
             required
             autoComplete="email"
-            disabled={done}
+            disabled={done || pending}
           />
-          <button type="submit" className="btn btn-solid" disabled={done}>
-            {done ? "✓ Subscribed" : "Subscribe now"}
+          <button
+            type="submit"
+            className="btn btn-solid"
+            disabled={done || pending}
+          >
+            {done ? "✓ Subscribed" : pending ? "Saving…" : "Subscribe now"}
           </button>
         </form>
-        <p className="subpop-note">Free. Unsubscribe anytime.</p>
+        {error ? <p className="subpop-note">{error}</p> : (
+          <p className="subpop-note">Free. Unsubscribe anytime.</p>
+        )}
       </div>
     </div>
   );

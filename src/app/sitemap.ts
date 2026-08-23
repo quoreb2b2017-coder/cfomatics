@@ -1,37 +1,74 @@
 import type { MetadataRoute } from "next";
-import { createClient } from "@/lib/supabase/server";
+import { getSiteUrl } from "@/lib/site";
+import { createPublicClient } from "@/lib/supabase/public";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.cfomatics.com";
+/** Rebuild at least every minute; publish paths also call revalidateSitemap(). */
+export const revalidate = 60;
+
+function lastMod(iso: string | null | undefined): Date | undefined {
+  if (!iso) return undefined;
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? undefined : d;
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = await createClient();
+  const site = getSiteUrl();
+  const nowIso = new Date().toISOString();
+  const supabase = createPublicClient();
 
   const [{ data: articles }, { data: topics }] = await Promise.all([
     supabase
       .from("articles")
-      .select("slug, updated_at")
-      .eq("status", "published"),
-    supabase.from("topics").select("slug"),
+      .select("slug, updated_at, published_at, cover_image_url")
+      .eq("status", "published")
+      .not("published_at", "is", null)
+      .lte("published_at", nowIso)
+      .order("published_at", { ascending: false }),
+    supabase.from("topics").select("slug").order("name"),
   ]);
 
+  const published = articles ?? [];
+  const newest = published[0]?.updated_at ?? published[0]?.published_at;
+
   const staticPages: MetadataRoute.Sitemap = [
-    { url: SITE_URL, changeFrequency: "hourly", priority: 1 },
-    { url: `${SITE_URL}/about`, changeFrequency: "monthly", priority: 0.4 },
-    { url: `${SITE_URL}/resources`, changeFrequency: "weekly", priority: 0.5 },
+    {
+      url: site,
+      lastModified: lastMod(newest) ?? new Date(),
+      changeFrequency: "hourly",
+      priority: 1,
+    },
+    {
+      url: `${site}/about`,
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
+      url: `${site}/resources`,
+      changeFrequency: "weekly",
+      priority: 0.5,
+    },
   ];
 
   const topicPages: MetadataRoute.Sitemap = (topics ?? []).map((t) => ({
-    url: `${SITE_URL}/topic/${t.slug}`,
+    url: `${site}/topic/${t.slug}`,
+    lastModified: lastMod(newest),
     changeFrequency: "daily",
-    priority: 0.6,
+    priority: 0.7,
   }));
 
-  const articlePages: MetadataRoute.Sitemap = (articles ?? []).map((a) => ({
-    url: `${SITE_URL}/article/${a.slug}`,
-    lastModified: a.updated_at,
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
+  const articlePages: MetadataRoute.Sitemap = published.map((a) => {
+    const publishedAt = lastMod(a.published_at);
+    const ageMs = publishedAt ? Date.now() - publishedAt.getTime() : Infinity;
+    const fresh = ageMs < 1000 * 60 * 60 * 24 * 3;
+
+    return {
+      url: `${site}/article/${a.slug}`,
+      lastModified: lastMod(a.updated_at) ?? publishedAt,
+      changeFrequency: fresh ? "daily" : "weekly",
+      priority: fresh ? 0.9 : 0.7,
+      images: a.cover_image_url ? [a.cover_image_url] : undefined,
+    };
+  });
 
   return [...staticPages, ...topicPages, ...articlePages];
 }

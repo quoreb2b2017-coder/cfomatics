@@ -11,6 +11,8 @@ import {
   clampMetaTitle,
   clampToLimit,
 } from "@/lib/seo";
+import { revalidateSitemap } from "@/lib/site";
+import { notifySubscribersOfArticle } from "@/lib/subscribers";
 import type { ArticleBody, ArticleStatus } from "@/types/database";
 
 function parseBody(formData: FormData): ArticleBody {
@@ -122,11 +124,15 @@ export async function createArticle(formData: FormData) {
   const fields = articleFields(formData);
   const slug = slugify(String(formData.get("slug") ?? "") || fields.title);
 
-  const { error } = await supabase.from("articles").insert({
-    ...fields,
-    slug,
-    source: "manual",
-  });
+  const { data: inserted, error } = await supabase
+    .from("articles")
+    .insert({
+      ...fields,
+      slug,
+      source: "manual",
+    })
+    .select("id, status")
+    .single();
 
   if (error) {
     throw new Error(error.message);
@@ -134,6 +140,10 @@ export async function createArticle(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/admin/articles");
+  revalidateSitemap();
+  if (inserted?.status === "published" && inserted.id) {
+    await notifySubscribersOfArticle(inserted.id);
+  }
   redirect("/admin/articles");
 }
 
@@ -170,6 +180,10 @@ export async function updateArticle(id: string, formData: FormData) {
   revalidatePath("/admin/articles");
   if (existing?.slug) revalidatePath(`/article/${existing.slug}`);
   if (slug !== existing?.slug) revalidatePath(`/article/${slug}`);
+  revalidateSitemap();
+  if (existing?.status !== "published" && fields.status === "published") {
+    await notifySubscribersOfArticle(id);
+  }
   redirect("/admin/articles");
 }
 
@@ -187,6 +201,7 @@ export async function deleteArticle(id: string) {
   revalidatePath("/");
   revalidatePath("/admin/articles");
   if (existing?.slug) revalidatePath(`/article/${existing.slug}`);
+  revalidateSitemap();
 }
 
 export async function toggleArticleStatus(id: string, next: ArticleStatus) {
@@ -210,4 +225,8 @@ export async function toggleArticleStatus(id: string, next: ArticleStatus) {
   revalidatePath("/");
   revalidatePath("/admin/articles");
   if (existing?.slug) revalidatePath(`/article/${existing.slug}`);
+  revalidateSitemap();
+  if (next === "published") {
+    await notifySubscribersOfArticle(id);
+  }
 }

@@ -10,6 +10,8 @@ import {
   type NavbarTopic,
 } from "@/lib/ai/generate-article";
 import { SEO_LIMITS, clampGeneratedSeoFields, clampToLimit } from "@/lib/seo";
+import { revalidateSitemap } from "@/lib/site";
+import { notifySubscribersOfArticle } from "@/lib/subscribers";
 import type {
   ArticleSource,
   ArticleStatus,
@@ -116,7 +118,10 @@ export async function persistGeneratedArticle(
   revalidatePath("/admin/articles");
   revalidatePath(`/topic/${args.topic.slug}`);
   revalidatePath(`/article/${inserted.slug}`);
-  revalidatePath("/sitemap.xml");
+  revalidateSitemap();
+  if (status === "published") {
+    await notifySubscribersOfArticle(inserted.id);
+  }
 
   return inserted;
 }

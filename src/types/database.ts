@@ -77,6 +77,34 @@ export type GenerationLogEntry = {
   error_message: string | null;
 };
 
+export type Subscriber = {
+  id: string;
+  email: string;
+  unsubscribed_at: string | null;
+  unsubscribe_token: string;
+  created_at: string;
+};
+
+export type SubscriberInterest = {
+  id: string;
+  subscriber_id: string;
+  article_id: string | null;
+  article_slug: string | null;
+  article_title: string | null;
+  topic_id: string | null;
+  topic_slug: string | null;
+  topic_name: string | null;
+  source: string;
+  created_at: string;
+};
+
+export type SubscriberNotification = {
+  id: string;
+  subscriber_id: string;
+  article_id: string;
+  sent_at: string;
+};
+
 export type Database = {
   public: {
     Views: Record<string, never>;
@@ -126,6 +154,64 @@ export type Database = {
         Insert: { user_id: string; created_at?: string };
         Update: { user_id?: string; created_at?: string };
         Relationships: never[];
+      };
+      subscribers: {
+        Row: Subscriber;
+        Insert: Partial<Subscriber> & { email: string };
+        Update: Partial<Subscriber>;
+        Relationships: never[];
+      };
+      subscriber_interests: {
+        Row: SubscriberInterest;
+        Insert: Partial<SubscriberInterest> & { subscriber_id: string };
+        Update: Partial<SubscriberInterest>;
+        Relationships: [
+          {
+            foreignKeyName: "subscriber_interests_subscriber_id_fkey";
+            columns: ["subscriber_id"];
+            isOneToOne: false;
+            referencedRelation: "subscribers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "subscriber_interests_article_id_fkey";
+            columns: ["article_id"];
+            isOneToOne: false;
+            referencedRelation: "articles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "subscriber_interests_topic_id_fkey";
+            columns: ["topic_id"];
+            isOneToOne: false;
+            referencedRelation: "topics";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      subscriber_notifications: {
+        Row: SubscriberNotification;
+        Insert: Partial<SubscriberNotification> & {
+          subscriber_id: string;
+          article_id: string;
+        };
+        Update: Partial<SubscriberNotification>;
+        Relationships: [
+          {
+            foreignKeyName: "subscriber_notifications_subscriber_id_fkey";
+            columns: ["subscriber_id"];
+            isOneToOne: false;
+            referencedRelation: "subscribers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "subscriber_notifications_article_id_fkey";
+            columns: ["article_id"];
+            isOneToOne: false;
+            referencedRelation: "articles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
   };

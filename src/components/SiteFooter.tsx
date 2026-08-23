@@ -16,7 +16,7 @@ export default async function SiteFooter() {
               News and analysis for finance leaders - covering the decisions,
               standards, and technology shaping the office of the CFO.
             </p>
-            <form className="foot-nl js-fake-subscribe">
+            <form className="foot-nl js-fake-subscribe" data-source="footer">
               <label htmlFor="foot-email" className="sr-only">
                 Work email
               </label>

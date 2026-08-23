@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, Inter, Newsreader } from "next/font/google";
 import ClientEffects from "@/components/ClientEffects";
 import JsonLd from "@/components/JsonLd";
+import { getSiteUrl } from "@/lib/site";
 import "./globals.css";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.cfomatics.com";
+const SITE_URL = getSiteUrl();
 
 const newsreader = Newsreader({
   variable: "--font-newsreader",
@@ -29,12 +30,24 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "CFOmatics - Financial News & Analysis for Finance Leaders",
     template: "%s - CFOmatics",
   },
   description:
     "CFOmatics delivers news and analysis for CFOs and finance leaders across financial reporting, FP&A, treasury, risk, tax, technology, and leadership.",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   icons: {
     icon: [{ url: "/brand/mark.svg", type: "image/svg+xml" }],
     apple: [{ url: "/apple-icon" }],

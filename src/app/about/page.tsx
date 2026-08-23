@@ -32,7 +32,7 @@ export default function Page() {
   <aside className="side">
     <div className="box nlbox" id="nl"><div className="bh">The CFOmatics Daily</div><div className="bb">
       <p>Finance news worth your five minutes, every morning.</p>
-      <form className="js-fake-subscribe"><input type="email" placeholder="Work email" required /><button className="btn btn-solid" type="submit">Sign up</button>
+      <form className="js-fake-subscribe" data-source="about"><input type="email" name="email" placeholder="Work email" required /><button className="btn btn-solid" type="submit">Sign up</button>
       <p className="consent">By signing up you agree to our Terms and Privacy Policy.</p></form></div></div>
     <div className="promo"><span className="tg">For partners</span><h4>Advertise with CFOmatics</h4><p>Reach finance leaders actively evaluating solutions.</p><a href="mailto:partners@cfomatics.com" className="btn btn-ghost">Get in touch →</a></div>
   </aside>
