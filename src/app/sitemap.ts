@@ -11,6 +11,19 @@ function lastMod(iso: string | null | undefined): Date | undefined {
   return Number.isNaN(d.getTime()) ? undefined : d;
 }
 
+/** Pexels query strings contain `&`, which breaks sitemap XML if left raw. */
+function sitemapImageUrl(url: string | null | undefined): string | undefined {
+  if (!url) return undefined;
+  try {
+    const parsed = new URL(url);
+    parsed.search = "";
+    parsed.hash = "";
+    return parsed.toString();
+  } catch {
+    return url.split("?")[0]?.split("#")[0] || undefined;
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const site = getSiteUrl();
   const nowIso = new Date().toISOString();
@@ -61,12 +74,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const ageMs = publishedAt ? Date.now() - publishedAt.getTime() : Infinity;
     const fresh = ageMs < 1000 * 60 * 60 * 24 * 3;
 
+    const image = sitemapImageUrl(a.cover_image_url);
+
     return {
       url: `${site}/article/${a.slug}`,
       lastModified: lastMod(a.updated_at) ?? publishedAt,
       changeFrequency: fresh ? "daily" : "weekly",
       priority: fresh ? 0.9 : 0.7,
-      images: a.cover_image_url ? [a.cover_image_url] : undefined,
+      images: image ? [image] : undefined,
     };
   });
 

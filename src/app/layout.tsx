@@ -49,7 +49,10 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [{ url: "/brand/mark.svg", type: "image/svg+xml" }],
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
     apple: [{ url: "/apple-icon" }],
   },
 };
