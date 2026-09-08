@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, Inter, Newsreader } from "next/font/google";
+import AlliScript from "@/components/AlliScript";
 import ClientEffects from "@/components/ClientEffects";
 import JsonLd from "@/components/JsonLd";
 import { getSiteUrl } from "@/lib/site";
@@ -69,6 +70,9 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${newsreader.variable} ${inter.variable} ${ibmPlexMono.variable} h-full antialiased`}
     >
+      <head>
+        <AlliScript />
+      </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <JsonLd
           data={{
