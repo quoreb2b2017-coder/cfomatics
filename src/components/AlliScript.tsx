@@ -1,11 +1,10 @@
-/** Alli AI SEO automation — site-wide <head> snippet for www.cfomatics.com. */
+import Script from "next/script";
+
+/** Alli AI SEO automation — site-wide head loader for www.cfomatics.com. */
 export default function AlliScript() {
   return (
-    <script
-      id="alli-ai"
-      // Alli requires this loader in <head> before </head>.
-      dangerouslySetInnerHTML={{
-        __html: `/* Alli AI widget for www.cfomatics.com */
+    <Script id="alli-ai" strategy="beforeInteractive">{`
+/* Alli AI widget for www.cfomatics.com */
 (function (w,d,s,o,f,js,fjs) {
   w['AlliJSWidget']=o;
   w[o] = w[o] || function () { (w[o].q = w[o].q || []).push(arguments) };
@@ -17,8 +16,7 @@ export default function AlliScript() {
   fjs.parentNode.insertBefore(js, fjs);
 })(window, document, 'script', 'alli', 'https://static.alliai.com/widget/v1.js');
 alli('init', 'site_XmrJgx8PQraHMzs9');
-alli('optimize', 'all');`,
-      }}
-    />
+alli('optimize', 'all');
+`}</Script>
   );
 }

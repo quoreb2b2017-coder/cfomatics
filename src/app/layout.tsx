@@ -70,10 +70,8 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${newsreader.variable} ${inter.variable} ${ibmPlexMono.variable} h-full antialiased`}
     >
-      <head>
-        <AlliScript />
-      </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
+        <AlliScript />
         <JsonLd
           data={{
             "@context": "https://schema.org",
