@@ -3871,3 +3871,209 @@ a {
     height: 90px;
   }
 }
+
+/* ---- Unsubscribe page (CFOmatics colors) ---- */
+.unsub-page {
+  flex: 1;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(12, 107, 79, 0.1), transparent),
+    var(--paper-2);
+  padding: 48px 0 72px;
+}
+
+.unsub-wrap {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.unsub-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(21, 24, 28, 0.08);
+}
+
+.unsub-card-head {
+  position: relative;
+  background: var(--ink);
+  color: #fcfcfb;
+  padding: 28px 28px 24px;
+  text-align: center;
+}
+
+.unsub-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  color: rgba(252, 252, 251, 0.7);
+  font-size: 28px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.unsub-close:hover {
+  color: #fff;
+}
+
+.unsub-card-head .brand-logo {
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.unsub-brand-word {
+  margin: 0 0 12px;
+  font-family: var(--font-newsreader), serif;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.unsub-brand-word span {
+  color: var(--brass);
+}
+
+.unsub-card-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+  color: rgba(252, 252, 251, 0.9);
+}
+
+.unsub-card-body {
+  padding: 28px 28px 32px;
+}
+
+.unsub-lead {
+  margin: 0 0 22px;
+  color: var(--mute);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.unsub-label {
+  display: block;
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.unsub-label--spaced {
+  margin-top: 22px;
+}
+
+.unsub-optional {
+  font-weight: 500;
+  color: var(--mute-2);
+}
+
+.unsub-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 15px;
+  outline: none;
+}
+
+.unsub-input:focus {
+  border-color: var(--emerald);
+  box-shadow: 0 0 0 3px var(--emerald-t);
+  background: #fff;
+}
+
+.unsub-reasons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.unsub-reason {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+  color: var(--ink-2);
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+
+.unsub-reason input {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--mute-2);
+  border-radius: 50%;
+  background: #fff;
+  position: relative;
+}
+
+.unsub-reason input:checked {
+  border-color: var(--brass);
+}
+
+.unsub-reason input:checked::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--brass);
+}
+
+.unsub-error {
+  margin: 16px 0 0;
+  color: #a02020;
+  font-size: 13px;
+}
+
+.unsub-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 26px;
+  min-width: 140px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--brass);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 13px 22px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.unsub-submit:hover {
+  background: #947328;
+}
+
+.unsub-submit:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.unsub-submit--link {
+  margin-top: 8px;
+}
+
+@media (max-width: 560px) {
+  .unsub-page {
+    padding: 28px 0 56px;
+  }
+
+  .unsub-card-head,
+  .unsub-card-body {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}

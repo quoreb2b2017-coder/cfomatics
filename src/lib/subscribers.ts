@@ -99,6 +99,57 @@ export async function unsubscribeByToken(token: string): Promise<boolean> {
   return Boolean(data);
 }
 
+export async function unsubscribeByEmail(
+  emailRaw: string,
+  reason?: string | null,
+): Promise<{ found: boolean }> {
+  const email = normalizeEmail(emailRaw);
+  if (!EMAIL_RE.test(email) || email.length > 254) {
+    throw new Error("Enter a valid work email");
+  }
+
+  const admin = createAdminClient();
+  const { data: existing, error: lookupError } = await admin
+    .from("subscribers")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (lookupError) throw new Error(lookupError.message);
+  if (!existing) {
+    // Do not reveal whether the email is on the list.
+    return { found: false };
+  }
+
+  const patch: { unsubscribed_at: string; unsubscribe_reason?: string | null } =
+    {
+      unsubscribed_at: new Date().toISOString(),
+    };
+  if (reason && reason.trim()) {
+    patch.unsubscribe_reason = reason.trim().slice(0, 280);
+  }
+
+  const { error } = await admin
+    .from("subscribers")
+    .update(patch)
+    .eq("id", existing.id);
+
+  if (error) {
+    // Column may not exist yet on older DBs — retry without reason.
+    if (reason && /unsubscribe_reason|column/i.test(error.message)) {
+      const { error: retryError } = await admin
+        .from("subscribers")
+        .update({ unsubscribed_at: new Date().toISOString() })
+        .eq("id", existing.id);
+      if (retryError) throw new Error(retryError.message);
+      return { found: true };
+    }
+    throw new Error(error.message);
+  }
+
+  return { found: true };
+}
+
 export async function notifySubscribersOfArticle(articleId: string) {
   try {
     await notifySubscribersOfArticleInner(articleId);

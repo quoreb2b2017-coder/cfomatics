@@ -9,7 +9,7 @@ import {
 export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
-const DAILY_ARTICLE_COUNT = 2;
+const DAILY_ARTICLE_COUNT = 1;
 
 type NavbarTopic = { id: string; slug: string; name: string };
 

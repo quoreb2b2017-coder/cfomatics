@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import UnsubscribeForm from "@/components/UnsubscribeForm";
 import { unsubscribeByToken } from "@/lib/subscribers";
 
 export const metadata: Metadata = {
@@ -12,30 +13,43 @@ export const metadata: Metadata = {
 export default async function UnsubscribePage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string }>;
+  searchParams: Promise<{ token?: string; done?: string; email?: string }>;
 }) {
-  const { token } = await searchParams;
-  const ok = token ? await unsubscribeByToken(token) : false;
+  const { token, done, email } = await searchParams;
+  const tokenOk = token ? await unsubscribeByToken(token) : false;
+  const success = tokenOk || done === "1";
 
   return (
     <>
       <SiteHeader />
-      <div className="wrap" style={{ padding: "80px 0", maxWidth: 640 }}>
-        <span className="kicker k">Newsletter</span>
-        <h1 style={{ fontFamily: "var(--font-newsreader), serif", marginTop: 8 }}>
-          {ok ? "You are unsubscribed" : "Unsubscribe link is invalid"}
-        </h1>
-        <p style={{ color: "var(--ink-2)", marginTop: 12, fontSize: 18 }}>
-          {ok
-            ? "You will no longer get related-article emails from CFOmatics. You can subscribe again from any story."
-            : "This unsubscribe link is missing or expired. If you still receive emails, reply to that message and we will take you off the list."}
-        </p>
-        <p style={{ marginTop: 24 }}>
-          <Link href="/" className="btn btn-solid">
-            Back to CFOmatics
-          </Link>
-        </p>
-      </div>
+      <main className="unsub-page">
+        <div className="wrap unsub-wrap">
+          {success ? (
+            <div className="unsub-card">
+              <header className="unsub-card-head">
+                <Link href="/" className="unsub-close" aria-label="Close">
+                  ×
+                </Link>
+                <p className="unsub-brand-word">
+                  CFO<span>matics</span>
+                </p>
+                <p className="unsub-card-title">You are unsubscribed</p>
+              </header>
+              <div className="unsub-card-body">
+                <p className="unsub-lead">
+                  You will no longer get related-article emails from CFOmatics.
+                  You can subscribe again anytime from a story or the homepage.
+                </p>
+                <Link href="/" className="unsub-submit unsub-submit--link">
+                  Back to CFOmatics
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <UnsubscribeForm initialEmail={email ?? ""} />
+          )}
+        </div>
+      </main>
       <SiteFooter />
     </>
   );

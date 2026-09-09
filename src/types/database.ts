@@ -82,6 +82,7 @@ export type Subscriber = {
   email: string;
   unsubscribed_at: string | null;
   unsubscribe_token: string;
+  unsubscribe_reason?: string | null;
   created_at: string;
 };
 

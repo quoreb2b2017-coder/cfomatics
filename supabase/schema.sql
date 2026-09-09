@@ -134,11 +134,15 @@ create table if not exists public.subscribers (
   email text not null,
   unsubscribed_at timestamptz,
   unsubscribe_token uuid not null unique default gen_random_uuid(),
+  unsubscribe_reason text,
   created_at timestamptz not null default now()
 );
 
 create unique index if not exists subscribers_email_lower_idx
   on public.subscribers (lower(email));
+
+alter table public.subscribers
+  add column if not exists unsubscribe_reason text;
 
 create table if not exists public.subscriber_interests (
   id uuid primary key default gen_random_uuid(),

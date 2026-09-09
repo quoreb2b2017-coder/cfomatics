@@ -89,6 +89,8 @@ export default async function SiteFooter() {
             <Link href="/about#standards">Terms</Link>
             <span aria-hidden>·</span>
             <Link href="/about#contact">Contact</Link>
+            <span aria-hidden>·</span>
+            <Link href="/unsubscribe">Unsubscribe</Link>
           </span>
         </div>
       </div>
