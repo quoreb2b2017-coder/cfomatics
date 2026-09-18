@@ -2307,6 +2307,12 @@ img {
   gap: 10px;
 }
 
+.foot-pub {
+  display: inline;
+  margin-left: 8px;
+  color: #868d96;
+}
+
 .foot-btm a {
   color: #868d96;
   transition: color 0.15s;

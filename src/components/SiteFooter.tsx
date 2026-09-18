@@ -82,7 +82,10 @@ export default async function SiteFooter() {
         </div>
 
         <div className="foot-btm">
-          <span>© {new Date().getFullYear()} CFOmatics. All rights reserved.</span>
+          <span>
+            © {new Date().getFullYear()} CFOmatics. All rights reserved.
+            <span className="foot-pub">Published by Quore B2B Marketing.</span>
+          </span>
           <span className="foot-legal">
             <Link href="/about#standards">Privacy</Link>
             <span aria-hidden>·</span>
