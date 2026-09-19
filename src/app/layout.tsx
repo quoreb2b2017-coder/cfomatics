@@ -38,6 +38,16 @@ export const metadata: Metadata = {
   },
   description:
     "CFOmatics delivers news and analysis for CFOs and finance leaders across financial reporting, FP&A, treasury, risk, tax, technology, and leadership.",
+  alternates: {
+    types: {
+      "application/rss+xml": [
+        {
+          url: "/feed.xml",
+          title: "CFOmatics RSS",
+        },
+      ],
+    },
+  },
   robots: {
     index: true,
     follow: true,
