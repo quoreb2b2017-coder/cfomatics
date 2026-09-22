@@ -4,6 +4,7 @@ import BrandLogo from "@/components/BrandLogo";
 import MobileNav from "@/components/MobileNav";
 import HeaderSpacer from "@/components/HeaderSpacer";
 import { getTopics } from "@/lib/topics";
+import type { Topic } from "@/types/database";
 
 function todayLabel() {
   return new Intl.DateTimeFormat("en-US", {
@@ -16,10 +17,13 @@ function todayLabel() {
 
 export default async function SiteHeader({
   showTicker = true,
+  topics: topicsProp,
 }: {
   showTicker?: boolean;
+  /** Pass from page when already loaded to avoid a second topics round-trip. */
+  topics?: Topic[];
 } = {}) {
-  const topics = await getTopics();
+  const topics = topicsProp ?? (await getTopics());
   const topicLinks = topics.map((t) => ({
     id: t.id,
     slug: t.slug,

@@ -1,9 +1,9 @@
 import Script from "next/script";
 
-/** Alli AI SEO automation — site-wide head loader for www.cfomatics.com. */
+/** Alli AI SEO automation — deferred so it never blocks first paint. */
 export default function AlliScript() {
   return (
-    <Script id="alli-ai" strategy="beforeInteractive">{`
+    <Script id="alli-ai" strategy="lazyOnload">{`
 /* Alli AI widget for www.cfomatics.com */
 (function (w,d,s,o,f,js,fjs) {
   w['AlliJSWidget']=o;

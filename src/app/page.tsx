@@ -3,8 +3,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import CoverImage from "@/components/CoverImage";
 import { ArticleCard, ArticleGridCard } from "@/components/ArticleCard";
-import { getLatestArticles, getArticlesByTopicSlug } from "@/lib/articles";
-import { getTopics } from "@/lib/topics";
+import { getHomepageData } from "@/lib/homepage";
 
 export const revalidate = 300;
 
@@ -18,17 +17,7 @@ function formatDate(iso: string | null) {
 }
 
 export default async function Page() {
-  const [latest, topics] = await Promise.all([
-    getLatestArticles(100),
-    getTopics(),
-  ]);
-
-  const topicSections = await Promise.all(
-    topics.map(async (topic) => ({
-      topic,
-      articles: await getArticlesByTopicSlug(topic.slug, 6),
-    })),
-  );
+  const { topics, latest, topicSections } = await getHomepageData();
 
   const [lead, ...rest] = latest;
   const topStories = rest.slice(0, 4);
@@ -37,7 +26,7 @@ export default async function Page() {
   if (!lead) {
     return (
       <>
-        <SiteHeader />
+        <SiteHeader topics={topics} />
         <div className="wrap" style={{ padding: "80px 0", textAlign: "center" }}>
           <h1 style={{ fontFamily: "var(--font-newsreader), serif" }}>
             No articles published yet
@@ -47,14 +36,14 @@ export default async function Page() {
             one, or wait for the next scheduled AI run.
           </p>
         </div>
-        <SiteFooter />
+        <SiteFooter topics={topics} />
       </>
     );
   }
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader topics={topics} />
       <section className="lead">
         <div className="wrap lead-grid">
           <div className="lead-main">
@@ -248,7 +237,7 @@ export default async function Page() {
           </div>
         </div>
       </div>
-      <SiteFooter />
+      <SiteFooter topics={topics} />
     </>
   );
 }

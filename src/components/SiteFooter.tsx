@@ -2,9 +2,14 @@ import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import CookiePreferencesTrigger from "@/components/CookiePreferencesTrigger";
 import { getTopics } from "@/lib/topics";
+import type { Topic } from "@/types/database";
 
-export default async function SiteFooter() {
-  const topics = await getTopics();
+export default async function SiteFooter({
+  topics: topicsProp,
+}: {
+  topics?: Topic[];
+} = {}) {
+  const topics = topicsProp ?? (await getTopics());
 
   return (
     <footer className="foot">

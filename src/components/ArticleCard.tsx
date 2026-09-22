@@ -1,6 +1,9 @@
 import Link from "next/link";
 import CoverImage from "@/components/CoverImage";
+import type { HomepageArticle } from "@/lib/homepage";
 import type { ArticleWithTopic } from "@/types/database";
+
+type CardArticle = HomepageArticle | ArticleWithTopic;
 
 function formatDate(iso: string | null) {
   if (!iso) return "";
@@ -11,7 +14,7 @@ function formatDate(iso: string | null) {
   }).format(new Date(iso));
 }
 
-export function ArticleCard({ article }: { article: ArticleWithTopic }) {
+export function ArticleCard({ article }: { article: CardArticle }) {
   return (
     <article className="acard reveal">
       <Link
@@ -43,7 +46,7 @@ export function ArticleCard({ article }: { article: ArticleWithTopic }) {
   );
 }
 
-export function ArticleGridCard({ article }: { article: ArticleWithTopic }) {
+export function ArticleGridCard({ article }: { article: CardArticle }) {
   return (
     <article className="gcard reveal">
       <Link

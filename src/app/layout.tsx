@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, Inter, Newsreader } from "next/font/google";
 import AlliScript from "@/components/AlliScript";
 import ClientEffects from "@/components/ClientEffects";
-import CookieConsentChrome from "@/components/CookieConsentChrome";
+import CookieConsentShell from "@/components/CookieConsentShell";
 import JsonLd from "@/components/JsonLd";
 import { getSiteUrl } from "@/lib/site";
 import "./globals.css";
@@ -107,7 +107,7 @@ export default function RootLayout({
         />
         {children}
         <ClientEffects />
-        <CookieConsentChrome />
+        <CookieConsentShell />
       </body>
     </html>
   );

@@ -21,7 +21,7 @@ import {
 } from "@/lib/site-analytics/sanitize";
 
 export type IngestResult =
-  | { ok: true; id?: string }
+  | { ok: true }
   | { ok: false; status: number; detail: string };
 
 export async function ingestSiteAnalyticsEvent(
@@ -106,11 +106,8 @@ export async function ingestSiteAnalyticsEvent(
     custom_meta: customMeta,
   };
 
-  const { data, error } = await db
-    .from("site_analytics_events")
-    .insert(row)
-    .select("id")
-    .maybeSingle();
+  // No .select() — return as soon as insert is acknowledged.
+  const { error } = await db.from("site_analytics_events").insert(row);
 
   if (error) {
     console.warn("[site-analytics] insert failed:", error.message);
@@ -129,22 +126,25 @@ export async function ingestSiteAnalyticsEvent(
             ? "reject_all"
             : "custom";
 
-    const { error: consentError } = await db.from("consent_events").insert({
-      choice,
-      necessary: true,
-      analytics,
-      marketing,
-      consent_version: 1,
-      session_id: sessionId,
-      path,
-      pseudonymized_ip: pseudoIp,
-      consent_status: consentStatus,
-      country: geo.country || null,
-    });
-    if (consentError) {
-      console.warn("[consent_events] dual-write failed:", consentError.message);
-    }
+    // Fire-and-forget dual-write so consent response stays fast.
+    void db
+      .from("consent_events")
+      .insert({
+        choice,
+        necessary: true,
+        analytics,
+        marketing,
+        consent_version: 1,
+        session_id: sessionId,
+        path,
+        pseudonymized_ip: pseudoIp,
+        consent_status: consentStatus,
+        country: geo.country || null,
+      })
+      .then(({ error: e }) => {
+        if (e) console.warn("[consent_events] dual-write failed:", e.message);
+      });
   }
 
-  return { ok: true, id: data?.id };
+  return { ok: true };
 }

@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 const PRODUCTION_SITE_URL = "https://www.cfomatics.com";
 
@@ -21,10 +21,14 @@ export function getSiteUrl(): string {
   return "http://localhost:3000";
 }
 
-/** Bust cached sitemap + RSS after publish / unpublish / delete. */
+/** Bust cached sitemap, RSS, homepage data, and public routes after publish. */
 export function revalidateSitemap() {
+  revalidatePath("/");
   revalidatePath("/sitemap.xml");
   revalidatePath("/robots.txt");
   revalidatePath("/feed.xml");
   revalidatePath("/rss.xml");
+  revalidateTag("homepage", "max");
+  revalidateTag("articles", "max");
+  revalidateTag("topics", "max");
 }
