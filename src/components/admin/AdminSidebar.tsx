@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { signOut } from "@/lib/actions/auth";
 
@@ -89,10 +90,12 @@ function NavGroup({
   label,
   links,
   pathname,
+  onNavigate,
 }: {
   label: string;
   links: NavLink[];
   pathname: string;
+  onNavigate?: () => void;
 }) {
   return (
     <>
@@ -107,6 +110,7 @@ function NavGroup({
             href={link.href}
             className={active ? "active" : undefined}
             aria-current={active ? "page" : undefined}
+            onClick={onNavigate}
           >
             <span className="admin-nav-icon" aria-hidden>
               {link.icon}
@@ -121,57 +125,137 @@ function NavGroup({
 
 export default function AdminSidebar({ email }: { email: string | undefined }) {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
   const initial = (email?.[0] ?? "A").toUpperCase();
 
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.body.classList.add("admin-nav-open");
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.classList.remove("admin-nav-open");
+    };
+  }, [open]);
+
+  const close = () => setOpen(false);
+
   return (
-    <aside className="admin-sidebar">
-      <div className="admin-sidebar-head">
-        <span className="admin-sidebar-kicker">CFOmatics</span>
-        <strong>Control center</strong>
-        <p className="admin-sidebar-tagline">Publishing · audience · privacy</p>
-      </div>
-
-      <nav className="admin-sidebar-nav" aria-label="Admin">
-        <NavGroup label="Manage" links={MANAGE} pathname={pathname} />
-        <NavGroup label="Audience" links={AUDIENCE} pathname={pathname} />
-        <NavGroup label="Privacy" links={PRIVACY} pathname={pathname} />
-
-        <p className="admin-nav-label">Shortcuts</p>
-        <Link href="/admin/articles/new#generate">
-          <span className="admin-nav-icon" aria-hidden>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
+    <>
+      <div className="admin-mobile-bar">
+        <button
+          type="button"
+          className="admin-menu-btn"
+          aria-expanded={open}
+          aria-controls="admin-sidebar"
+          onClick={() => setOpen((v) => !v)}
+        >
+          <span className="admin-menu-icon" aria-hidden>
+            {open ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 7h16M4 12h16M4 17h16" />
+              </svg>
+            )}
           </span>
-          New article
-        </Link>
-        <Link href="/" target="_blank">
-          <span className="admin-nav-icon" aria-hidden>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M4 11l8-7 8 7" />
-              <path d="M6 10v9h12v-9" />
-            </svg>
-          </span>
-          View public site
-        </Link>
-      </nav>
-
-      <div className="admin-sidebar-foot">
-        <div className="admin-user">
-          <span className="admin-user-avatar" aria-hidden>
-            {initial}
-          </span>
-          <div>
-            <span className="admin-user-role">Administrator</span>
-            {email && <p className="admin-sidebar-email">{email}</p>}
-          </div>
+          Menu
+        </button>
+        <div className="admin-mobile-bar-meta">
+          <strong>Control center</strong>
+          <form action={signOut}>
+            <button type="submit" className="admin-mobile-signout">
+              Sign out
+            </button>
+          </form>
         </div>
-        <form action={signOut}>
-          <button type="submit" className="admin-signout">
-            Sign out
-          </button>
-        </form>
       </div>
-    </aside>
+
+      {open ? (
+        <button
+          type="button"
+          className="admin-sidebar-backdrop"
+          aria-label="Close menu"
+          onClick={close}
+        />
+      ) : null}
+
+      <aside
+        id="admin-sidebar"
+        className={`admin-sidebar${open ? " is-open" : ""}`}
+      >
+        <div className="admin-sidebar-head">
+          <span className="admin-sidebar-kicker">CFOmatics</span>
+          <strong>Control center</strong>
+          <p className="admin-sidebar-tagline">Publishing · audience · privacy</p>
+        </div>
+
+        <nav className="admin-sidebar-nav" aria-label="Admin">
+          <NavGroup
+            label="Manage"
+            links={MANAGE}
+            pathname={pathname}
+            onNavigate={close}
+          />
+          <NavGroup
+            label="Audience"
+            links={AUDIENCE}
+            pathname={pathname}
+            onNavigate={close}
+          />
+          <NavGroup
+            label="Privacy"
+            links={PRIVACY}
+            pathname={pathname}
+            onNavigate={close}
+          />
+
+          <p className="admin-nav-label">Shortcuts</p>
+          <Link href="/admin/articles/new#generate" onClick={close}>
+            <span className="admin-nav-icon" aria-hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </span>
+            New article
+          </Link>
+          <Link href="/" target="_blank" onClick={close}>
+            <span className="admin-nav-icon" aria-hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M4 11l8-7 8 7" />
+                <path d="M6 10v9h12v-9" />
+              </svg>
+            </span>
+            View public site
+          </Link>
+        </nav>
+
+        <div className="admin-sidebar-foot">
+          <div className="admin-user">
+            <span className="admin-user-avatar" aria-hidden>
+              {initial}
+            </span>
+            <div className="admin-user-copy">
+              <span className="admin-user-role">Administrator</span>
+              {email && <p className="admin-sidebar-email">{email}</p>}
+            </div>
+          </div>
+          <form action={signOut} className="admin-signout-form">
+            <button type="submit" className="admin-signout">
+              Sign out
+            </button>
+          </form>
+        </div>
+      </aside>
+    </>
   );
 }
