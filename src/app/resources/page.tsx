@@ -66,7 +66,7 @@ export default function Page() {
         <div className="full"><label>Company size</label><select><option>1-50</option><option>51-200</option><option>201-1,000</option><option>1,001-5,000</option><option>5,000+</option></select></div>
         <div className="full" style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginTop: '2px' }}>
           <input type="checkbox" style={{ width: 'auto', marginTop: '5px' }} required />
-          <span style={{ fontSize: '12px', color: 'var(--mute)' }}>I agree to receive the requested content and related communications from CFOmatics and its partners. I can unsubscribe anytime. See our Privacy Policy.</span>
+          <span style={{ fontSize: '12px', color: 'var(--mute)' }}>I agree to receive the requested content and related communications from CFOmatics and its partners. I can unsubscribe anytime. See our <a href="/privacy">Privacy Policy</a>.</span>
         </div>
         <div className="full"><button className="btn btn-solid" type="submit" style={{ width: '100%', justifyContent: 'center' }}>Get instant access →</button></div>
       </form>

@@ -134,8 +134,8 @@ export default async function Page() {
                     Sign up
                   </button>
                   <p className="consent">
-                    By signing up you agree to our Terms and Privacy Policy.
-                    Unsubscribe anytime.
+                    By signing up you agree to our Terms and{" "}
+                    <a href="/privacy">Privacy Policy</a>. Unsubscribe anytime.
                   </p>
                 </form>
               </div>

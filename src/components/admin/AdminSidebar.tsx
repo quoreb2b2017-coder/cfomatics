@@ -47,6 +47,29 @@ const LINKS = [
       </svg>
     ),
   },
+  {
+    href: "/admin/cookies-report",
+    label: "Cookies & visitors",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <circle cx="12" cy="12" r="8" />
+        <circle cx="9" cy="10" r="1" fill="currentColor" stroke="none" />
+        <circle cx="14" cy="9" r="1" fill="currentColor" stroke="none" />
+        <circle cx="11" cy="14" r="1" fill="currentColor" stroke="none" />
+        <circle cx="15" cy="14" r="1" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
+  {
+    href: "/admin/gdpr",
+    label: "GDPR",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z" />
+        <path d="M9 12l2 2 4-4" />
+      </svg>
+    ),
+  },
 ] as const;
 
 export default function AdminSidebar({ email }: { email: string | undefined }) {

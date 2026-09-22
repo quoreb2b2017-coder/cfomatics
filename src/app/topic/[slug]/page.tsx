@@ -99,7 +99,8 @@ export default async function TopicPage({
                     Sign up
                   </button>
                   <p className="consent">
-                    By signing up you agree to our Terms and Privacy Policy.
+                    By signing up you agree to our Terms and{" "}
+                    <a href="/privacy">Privacy Policy</a>.
                   </p>
                 </form>
               </div>

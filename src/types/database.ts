@@ -106,6 +106,38 @@ export type SubscriberNotification = {
   sent_at: string;
 };
 
+export type ConsentEventChoice = "accept_all" | "reject_all" | "custom";
+
+export type ConsentEvent = {
+  id: string;
+  choice: ConsentEventChoice;
+  necessary: boolean;
+  analytics: boolean;
+  marketing: boolean;
+  consent_version: number;
+  session_id: string | null;
+  path: string | null;
+  pseudonymized_ip: string | null;
+  consent_status: string | null;
+  country: string | null;
+  created_at: string;
+};
+
+export type SiteAnalyticsKind = "page_view" | "consent" | "custom";
+
+export type SiteAnalyticsEvent = {
+  id: string;
+  kind: SiteAnalyticsKind;
+  session_id: string;
+  path: string | null;
+  referrer: string | null;
+  user_agent: string | null;
+  consent_snapshot: Record<string, unknown>;
+  marketing_meta: Record<string, unknown>;
+  custom_meta: Record<string, unknown>;
+  created_at: string;
+};
+
 export type Database = {
   public: {
     Views: Record<string, never>;
@@ -213,6 +245,21 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      consent_events: {
+        Row: ConsentEvent;
+        Insert: Partial<ConsentEvent> & { choice: ConsentEventChoice };
+        Update: Partial<ConsentEvent>;
+        Relationships: never[];
+      };
+      site_analytics_events: {
+        Row: SiteAnalyticsEvent;
+        Insert: Partial<SiteAnalyticsEvent> & {
+          kind: SiteAnalyticsKind;
+          session_id: string;
+        };
+        Update: Partial<SiteAnalyticsEvent>;
+        Relationships: never[];
       };
     };
   };

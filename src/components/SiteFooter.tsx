@@ -1,5 +1,6 @@
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
+import CookiePreferencesTrigger from "@/components/CookiePreferencesTrigger";
 import { getTopics } from "@/lib/topics";
 
 export default async function SiteFooter() {
@@ -87,7 +88,13 @@ export default async function SiteFooter() {
             <span className="foot-pub">Published by Quore B2B Marketing.</span>
           </span>
           <span className="foot-legal">
-            <Link href="/about#standards">Privacy</Link>
+            <Link href="/privacy">Privacy</Link>
+            <span aria-hidden>·</span>
+            <Link href="/privacy#cookies">Cookies</Link>
+            <span aria-hidden>·</span>
+            <CookiePreferencesTrigger className="foot-cookie-prefs">
+              Cookie preferences
+            </CookiePreferencesTrigger>
             <span aria-hidden>·</span>
             <Link href="/about#standards">Terms</Link>
             <span aria-hidden>·</span>

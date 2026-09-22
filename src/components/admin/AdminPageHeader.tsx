@@ -11,7 +11,7 @@ export default function AdminPageHeader({
 }: {
   kicker?: string;
   title: string;
-  description?: string;
+  description?: ReactNode;
   action?: ReactNode;
   backHref?: string;
   backLabel?: string;

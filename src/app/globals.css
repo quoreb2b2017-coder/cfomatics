@@ -4083,3 +4083,222 @@ a {
     padding-right: 20px;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Cookie consent bar (CFOmatics brand — emerald / paper / newsreader)
+--------------------------------------------------------------------------- */
+.cookie-bar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 80;
+  padding: 12px 16px 20px;
+  pointer-events: none;
+}
+
+.cookie-panel {
+  pointer-events: auto;
+  max-width: 920px;
+  margin: 0 auto;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.cookie-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--ink);
+  color: #fff;
+}
+
+.cookie-kicker {
+  display: block;
+  font-family: var(--font-ibm-plex-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brass);
+  margin-bottom: 4px;
+}
+
+.cookie-panel-head h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.cookie-close {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.cookie-close:hover {
+  color: #fff;
+}
+
+.cookie-panel-body {
+  padding: 16px 18px 18px;
+}
+
+.cookie-panel-body > p {
+  margin: 0 0 14px;
+  font-size: 14.5px;
+  color: var(--ink-2);
+  line-height: 1.55;
+}
+
+.cookie-panel-body a,
+.cookie-inline-link {
+  color: var(--emerald);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.cookie-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cookie-actions .btn {
+  font-size: 13px;
+  padding: 10px 16px;
+}
+
+.cookie-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.cookie-toggle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper-2);
+}
+
+.cookie-toggle-copy {
+  min-width: 0;
+}
+
+.cookie-toggle-copy label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cookie-toggle-copy p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--mute);
+  line-height: 1.4;
+}
+
+.cookie-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #dfe2dc;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s var(--ease);
+}
+
+.cookie-switch.is-on {
+  background: var(--emerald);
+  border-color: var(--emerald-d);
+}
+
+.cookie-switch.is-disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.cookie-switch-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(21, 24, 28, 0.2);
+  transition: transform 0.15s var(--ease);
+}
+
+.cookie-switch.is-on .cookie-switch-knob {
+  transform: translateX(18px);
+}
+
+.foot-cookie-prefs {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.foot-cookie-prefs:hover {
+  color: var(--emerald);
+}
+
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-range-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-range-btns .btn {
+  font-size: 12.5px;
+  padding: 8px 12px;
+}
+
+@media (max-width: 560px) {
+  .cookie-bar {
+    padding: 10px 10px 14px;
+  }
+
+  .cookie-actions .btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}
