@@ -4,7 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "@/lib/actions/auth";
 
-const LINKS = [
+type NavLink = {
+  href: string;
+  label: string;
+  exact?: boolean;
+  icon: React.ReactNode;
+};
+
+const MANAGE: NavLink[] = [
   {
     href: "/admin",
     label: "Dashboard",
@@ -37,6 +44,9 @@ const LINKS = [
       </svg>
     ),
   },
+];
+
+const AUDIENCE: NavLink[] = [
   {
     href: "/admin/subscribers",
     label: "Subscribers",
@@ -47,6 +57,9 @@ const LINKS = [
       </svg>
     ),
   },
+];
+
+const PRIVACY: NavLink[] = [
   {
     href: "/admin/cookies-report",
     label: "Cookies & visitors",
@@ -70,7 +83,41 @@ const LINKS = [
       </svg>
     ),
   },
-] as const;
+];
+
+function NavGroup({
+  label,
+  links,
+  pathname,
+}: {
+  label: string;
+  links: NavLink[];
+  pathname: string;
+}) {
+  return (
+    <>
+      <p className="admin-nav-label">{label}</p>
+      {links.map((link) => {
+        const active = link.exact
+          ? pathname === link.href
+          : pathname === link.href || pathname.startsWith(`${link.href}/`);
+        return (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={active ? "active" : undefined}
+            aria-current={active ? "page" : undefined}
+          >
+            <span className="admin-nav-icon" aria-hidden>
+              {link.icon}
+            </span>
+            {link.label}
+          </Link>
+        );
+      })}
+    </>
+  );
+}
 
 export default function AdminSidebar({ email }: { email: string | undefined }) {
   const pathname = usePathname();
@@ -81,29 +128,13 @@ export default function AdminSidebar({ email }: { email: string | undefined }) {
       <div className="admin-sidebar-head">
         <span className="admin-sidebar-kicker">CFOmatics</span>
         <strong>Control center</strong>
+        <p className="admin-sidebar-tagline">Publishing · audience · privacy</p>
       </div>
 
       <nav className="admin-sidebar-nav" aria-label="Admin">
-        <p className="admin-nav-label">Manage</p>
-        {LINKS.map((link) => {
-          const active =
-            "exact" in link && link.exact
-              ? pathname === link.href
-              : pathname === link.href || pathname.startsWith(`${link.href}/`);
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={active ? "active" : undefined}
-              aria-current={active ? "page" : undefined}
-            >
-              <span className="admin-nav-icon" aria-hidden>
-                {link.icon}
-              </span>
-              {link.label}
-            </Link>
-          );
-        })}
+        <NavGroup label="Manage" links={MANAGE} pathname={pathname} />
+        <NavGroup label="Audience" links={AUDIENCE} pathname={pathname} />
+        <NavGroup label="Privacy" links={PRIVACY} pathname={pathname} />
 
         <p className="admin-nav-label">Shortcuts</p>
         <Link href="/admin/articles/new#generate">
@@ -114,7 +145,7 @@ export default function AdminSidebar({ email }: { email: string | undefined }) {
           </span>
           New article
         </Link>
-        <Link href="/">
+        <Link href="/" target="_blank">
           <span className="admin-nav-icon" aria-hidden>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M4 11l8-7 8 7" />

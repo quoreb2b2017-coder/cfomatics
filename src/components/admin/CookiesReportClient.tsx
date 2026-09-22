@@ -74,27 +74,55 @@ function consentLabel(analytics: boolean, marketing: boolean) {
 }
 
 function BreakdownList({ title, rows }: { title: string; rows: CountRow[] }) {
+  const max = Math.max(...rows.map((r) => r.count), 1);
   return (
-    <div className="admin-card admin-card--flush">
-      <div className="admin-card-head" style={{ padding: "16px 20px", margin: 0 }}>
+    <div className="admin-card admin-card--flush admin-break-card">
+      <div className="admin-card-head admin-card-head--pad">
         <h2>{title}</h2>
+        <span className="admin-chip">{rows.length}</span>
       </div>
       {rows.length === 0 ? (
-        <p className="admin-empty" style={{ padding: "16px 20px" }}>
-          No data yet.
-        </p>
+        <p className="admin-empty admin-empty--pad">No data yet.</p>
       ) : (
-        <ul className="admin-recent">
+        <ul className="admin-break-list">
           {rows.map((row) => (
             <li key={`${title}-${row.key}`}>
-              <span className="admin-td-sub" title={row.key}>
-                {row.key}
-              </span>
-              <strong>{row.count}</strong>
+              <div className="admin-break-row">
+                <span className="admin-break-key" title={row.key}>
+                  {row.key}
+                </span>
+                <strong className="admin-break-count">{row.count}</strong>
+              </div>
+              <div className="admin-break-track" aria-hidden>
+                <span
+                  className="admin-break-fill"
+                  style={{ width: `${Math.max(6, (row.count / max) * 100)}%` }}
+                />
+              </div>
             </li>
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+function MetricCard({
+  label,
+  value,
+  hint,
+  tone = "default",
+}: {
+  label: string;
+  value: string | number;
+  hint?: string;
+  tone?: "default" | "emerald" | "brass" | "ink";
+}) {
+  return (
+    <div className={`admin-metric admin-metric--${tone}`}>
+      <span className="admin-metric-label">{label}</span>
+      <span className="admin-metric-value">{value}</span>
+      {hint ? <span className="admin-metric-hint">{hint}</span> : null}
     </div>
   );
 }
@@ -129,6 +157,10 @@ export default function CookiesReportClient() {
   }, [range, load]);
 
   const m = data.metrics;
+  const consentTotal = (data.consentBreakdown || []).reduce(
+    (sum, row) => sum + row.count,
+    0,
+  );
 
   const exportJson = () => {
     const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -188,27 +220,30 @@ export default function CookiesReportClient() {
   return (
     <>
       <AdminPageHeader
-        kicker="GDPR / visitors"
+        kicker="Privacy intelligence"
         title="Cookies & visitors"
         description={
           <>
             First-party page views, sessions, campaigns, and approximate geo.
-            Consent lawfulness:{" "}
-            <Link href="/admin/gdpr">GDPR</Link>. IPs are pseudonymized; no full
+            Consent lawfulness lives on{" "}
+            <Link href="/admin/gdpr">GDPR</Link>. IPs are pseudonymized — no full
             emails stored.
           </>
         }
+        action={
+          <Link href="/admin/gdpr" className="btn btn-ghost">
+            Open GDPR →
+          </Link>
+        }
       />
 
-      <div className="admin-toolbar" style={{ marginBottom: 20 }}>
-        <div className="admin-range-btns">
+      <div className="admin-panel-bar">
+        <div className="admin-seg">
           {RANGES.map((r) => (
             <button
               key={r.id}
               type="button"
-              className={
-                range === r.id ? "btn btn-solid" : "btn btn-ghost"
-              }
+              className={range === r.id ? "is-active" : undefined}
               onClick={() => setRange(r.id)}
               data-testid={`cookies-range-${r.id}`}
             >
@@ -216,83 +251,102 @@ export default function CookiesReportClient() {
             </button>
           ))}
         </div>
-        <div className="admin-range-btns">
+        <div className="admin-panel-actions">
           <button
             type="button"
-            className="btn btn-ghost"
+            className="admin-ghost-btn"
             onClick={() => void load(range)}
           >
             Refresh
           </button>
-          <button type="button" className="btn btn-ghost" onClick={exportCsv}>
+          <button type="button" className="admin-ghost-btn" onClick={exportCsv}>
             Export CSV
           </button>
-          <button type="button" className="btn btn-ghost" onClick={exportJson}>
+          <button type="button" className="admin-ghost-btn" onClick={exportJson}>
             Export JSON
           </button>
         </div>
       </div>
 
       {loading ? (
-        <p className="admin-empty">Loading…</p>
+        <div className="admin-loading">Loading visitor report…</div>
       ) : !data.available ? (
-        <div className="admin-card">
-          <h2>Setup required</h2>
-          <p className="admin-empty">
+        <div className="admin-callout">
+          <span className="admin-callout-kicker">Setup required</span>
+          <h2>Analytics tables not ready</h2>
+          <p>
             {data.detail ||
               "Run supabase/site-analytics.sql in the Supabase SQL Editor, then Accept/Reject on the public site to populate this report."}
           </p>
-          <p style={{ marginTop: 12 }}>
-            <Link href="/privacy#cookies" target="_blank" className="admin-card-link">
-              View public Privacy Policy →
-            </Link>
-          </p>
+          <Link href="/privacy#cookies" target="_blank" className="admin-card-link">
+            View public Privacy Policy →
+          </Link>
         </div>
       ) : (
         <>
-          <div className="admin-stats" style={{ gridTemplateColumns: "repeat(4, minmax(0, 1fr))" }}>
-            <div className="admin-stat">
-              <span className="admin-stat-label mono">Page views</span>
-              <span className="n">{m.pageViews}</span>
-            </div>
-            <div className="admin-stat">
-              <span className="admin-stat-label mono">Unique sessions</span>
-              <span className="n">{m.uniqueSessions}</span>
-            </div>
-            <div className="admin-stat">
-              <span className="admin-stat-label mono">Consent events</span>
-              <span className="n">{m.consentEvents}</span>
-            </div>
-            <div className="admin-stat">
-              <span className="admin-stat-label mono">Total events</span>
-              <span className="n">{m.totalEvents}</span>
-              <span className="l">{range}</span>
-            </div>
+          <div className="admin-metrics admin-metrics--4">
+            <MetricCard
+              label="Page views"
+              value={m.pageViews}
+              hint="With analytics consent"
+              tone="emerald"
+            />
+            <MetricCard
+              label="Unique sessions"
+              value={m.uniqueSessions}
+              hint="Distinct visitor ids"
+              tone="ink"
+            />
+            <MetricCard
+              label="Consent events"
+              value={m.consentEvents}
+              hint="Preference saves"
+              tone="brass"
+            />
+            <MetricCard
+              label="Total events"
+              value={m.totalEvents}
+              hint={`Range · ${range}`}
+            />
           </div>
 
-          <div className="admin-card admin-card--flush" style={{ marginBottom: 24 }}>
-            <div className="admin-card-head" style={{ padding: "16px 20px", margin: 0 }}>
+          <div className="admin-card admin-card--flush">
+            <div className="admin-card-head admin-card-head--pad">
               <h2>Consent breakdown</h2>
+              <span className="admin-chip">{consentTotal} events</span>
             </div>
             {(data.consentBreakdown || []).length === 0 ? (
-              <p className="admin-empty" style={{ padding: "16px 20px" }}>
+              <p className="admin-empty admin-empty--pad">
                 No consent events in range.
               </p>
             ) : (
-              <ul className="admin-recent">
-                {data.consentBreakdown.map((row) => (
-                  <li key={`${row.analytics}-${row.marketing}`}>
-                    <span className="admin-td-sub">
-                      {consentLabel(row.analytics, row.marketing)}
-                    </span>
-                    <strong>{row.count}</strong>
-                  </li>
-                ))}
+              <ul className="admin-consent-bars">
+                {data.consentBreakdown.map((row) => {
+                  const pct = consentTotal
+                    ? Math.round((row.count / consentTotal) * 100)
+                    : 0;
+                  return (
+                    <li key={`${row.analytics}-${row.marketing}`}>
+                      <div className="admin-consent-meta">
+                        <span>{consentLabel(row.analytics, row.marketing)}</span>
+                        <strong>
+                          {row.count} · {pct}%
+                        </strong>
+                      </div>
+                      <div className="admin-break-track" aria-hidden>
+                        <span
+                          className="admin-break-fill admin-break-fill--brass"
+                          style={{ width: `${Math.max(4, pct)}%` }}
+                        />
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>
 
-          <div className="admin-dash-grid" style={{ gridTemplateColumns: "1fr 1fr", marginBottom: 16 }}>
+          <div className="admin-break-grid">
             <BreakdownList title="Top paths" rows={data.topPaths || []} />
             <BreakdownList title="UTM / campaigns" rows={data.campaigns || []} />
             <BreakdownList title="Devices" rows={data.devices || []} />
@@ -302,11 +356,12 @@ export default function CookiesReportClient() {
           </div>
 
           <div className="admin-card admin-card--flush">
-            <div className="admin-card-head" style={{ padding: "16px 20px", margin: 0 }}>
+            <div className="admin-card-head admin-card-head--pad">
               <h2>Recent events</h2>
+              <span className="admin-chip">{(data.recent || []).length} shown</span>
             </div>
             <div className="admin-table-wrap">
-              <table className="admin-table">
+              <table className="admin-table admin-table--dense">
                 <thead>
                   <tr>
                     <th>Time</th>
@@ -322,31 +377,34 @@ export default function CookiesReportClient() {
                 <tbody>
                   {(data.recent || []).map((row) => (
                     <tr key={row.id}>
-                      <td className="mono" style={{ fontSize: 12, whiteSpace: "nowrap" }}>
+                      <td className="mono admin-td-now">
                         {row.createdAt
                           ? new Date(row.createdAt).toLocaleString()
                           : "—"}
                       </td>
-                      <td className="mono" style={{ fontSize: 12 }}>
-                        {row.kind}
+                      <td>
+                        <span className={`admin-pill admin-pill--${row.kind}`}>
+                          {row.kind}
+                        </span>
                       </td>
-                      <td className="mono" style={{ fontSize: 12 }} title={row.path || ""}>
-                        {(row.path || "—").slice(0, 40)}
+                      <td className="mono" title={row.path || ""}>
+                        {(row.path || "—").slice(0, 42)}
                       </td>
-                      <td className="mono" style={{ fontSize: 12 }}>
-                        {row.sessionId || "—"}
+                      <td className="mono">{row.sessionId || "—"}</td>
+                      <td>
+                        <span className="admin-flag">
+                          {row.analytics ? "A" : "—"}
+                        </span>
+                        <span className="admin-flag">
+                          {row.marketing ? "M" : "—"}
+                        </span>
                       </td>
-                      <td className="mono" style={{ fontSize: 12 }}>
-                        {row.analytics ? "A" : "—"}/{row.marketing ? "M" : "—"}
-                      </td>
-                      <td className="mono" style={{ fontSize: 12 }}>
-                        {row.pseudonymizedIp || "—"}
-                      </td>
-                      <td className="mono" style={{ fontSize: 12 }}>
+                      <td className="mono">{row.pseudonymizedIp || "—"}</td>
+                      <td className="mono">
                         {[row.city, row.country].filter(Boolean).join(", ") ||
                           "—"}
                       </td>
-                      <td className="mono" style={{ fontSize: 12 }}>
+                      <td className="mono">
                         {[row.utmSource, row.utmMedium, row.utmCampaign]
                           .filter(Boolean)
                           .join(" / ") || "—"}

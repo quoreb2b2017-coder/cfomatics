@@ -60,7 +60,7 @@ export default async function AdminDashboardPage() {
       />
 
       <div className="admin-stats">
-        <div className="admin-stat">
+        <div className="admin-stat admin-stat--emerald">
           <span className="admin-stat-label">Published</span>
           <span className="n">{publishedCount ?? 0}</span>
           <span className="l">Live on the public site</span>
@@ -75,12 +75,12 @@ export default async function AdminDashboardPage() {
           <span className="n">{topicCount ?? 0}</span>
           <span className="l">Navbar sections</span>
         </div>
-        <div className="admin-stat">
+        <div className="admin-stat admin-stat--warn">
           <span className="admin-stat-label">Failed runs</span>
           <span className="n">{failedCount ?? 0}</span>
           <span className="l">Last run {lastRun}</span>
         </div>
-        <div className="admin-stat">
+        <div className="admin-stat admin-stat--brass">
           <span className="admin-stat-label">Subscribers</span>
           <span className="n">{subscriberCount ?? 0}</span>
           <span className="l">Emails from the public site</span>
@@ -143,7 +143,15 @@ export default async function AdminDashboardPage() {
             </Link>
             <Link href="/admin/subscribers" className="admin-action">
               <strong>Subscribers</strong>
-              <span>Emails and which blogs they signed up for</span>
+              <span>Emails and signup interests</span>
+            </Link>
+            <Link href="/admin/cookies-report" className="admin-action">
+              <strong>Cookies &amp; visitors</strong>
+              <span>Sessions, paths, campaigns, geo</span>
+            </Link>
+            <Link href="/admin/gdpr" className="admin-action">
+              <strong>GDPR consent</strong>
+              <span>Accept / reject / customize rates</span>
             </Link>
             <Link href="/" className="admin-action">
               <strong>Open public site</strong>
