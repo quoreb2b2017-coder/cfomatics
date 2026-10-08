@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { SUBSCRIBED_KEY, submitSubscribe } from "@/lib/subscribe-client";
+import {
+  OPEN_SUBSCRIBE_EVENT,
+  SUBSCRIBED_KEY,
+  hasContextualPopup,
+  registerContextualPopup,
+  submitSubscribe,
+} from "@/lib/subscribe-client";
 
 export default function SubscribePopup({
   articleId,
@@ -10,6 +16,7 @@ export default function SubscribePopup({
   topicId,
   topicSlug,
   topicName,
+  siteWide = false,
 }: {
   articleId?: string;
   articleSlug?: string;
@@ -17,8 +24,11 @@ export default function SubscribePopup({
   topicId?: string;
   topicSlug?: string;
   topicName?: string;
+  /** Site-wide host: never auto-opens, only responds to openSubscribePopup(). */
+  siteWide?: boolean;
 }) {
   const titleId = useId();
+  const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [done, setDone] = useState(false);
@@ -26,12 +36,29 @@ export default function SubscribePopup({
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (siteWide) return;
     if (window.localStorage.getItem(SUBSCRIBED_KEY) === "1") return;
 
     const timer = window.setTimeout(() => setOpen(true), 450);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [siteWide]);
+
+  useEffect(() => {
+    const unregister = siteWide ? undefined : registerContextualPopup();
+
+    function onOpen() {
+      if (siteWide && hasContextualPopup()) return;
+      setDone(false);
+      setError("");
+      setOpen(true);
+    }
+
+    window.addEventListener(OPEN_SUBSCRIBE_EVENT, onOpen);
+    return () => {
+      window.removeEventListener(OPEN_SUBSCRIBE_EVENT, onOpen);
+      unregister?.();
+    };
+  }, [siteWide]);
 
   useEffect(() => {
     if (!open) return;
@@ -60,7 +87,7 @@ export default function SubscribePopup({
     try {
       await submitSubscribe({
         email,
-        source: "popup",
+        source: siteWide ? "navbar" : "popup",
         articleId,
         articleSlug,
         articleTitle,
@@ -114,12 +141,12 @@ export default function SubscribePopup({
             : "Finance news worth five minutes, every morning."}
         </p>
         <form className="subpop-form" onSubmit={onSubmit}>
-          <label htmlFor="article-sub-email" className="sr-only">
+          <label htmlFor={inputId} className="sr-only">
             Work email
           </label>
           <input
             ref={inputRef}
-            id="article-sub-email"
+            id={inputId}
             type="email"
             name="email"
             placeholder="Work email"

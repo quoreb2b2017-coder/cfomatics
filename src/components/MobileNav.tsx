@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import SubscribeButton from "@/components/SubscribeButton";
 
 type TopicLink = { id: string; slug: string; name: string };
 
@@ -74,13 +75,10 @@ export default function MobileNav({
             <Link href="/about" onClick={() => setOpen(false)}>
               About
             </Link>
-            <Link
-              href="/#nl"
+            <SubscribeButton
               className="btn btn-solid mobile-drawer-cta"
-              onClick={() => setOpen(false)}
-            >
-              Subscribe
-            </Link>
+              onBeforeOpen={() => setOpen(false)}
+            />
           </nav>
         </div>
       )}

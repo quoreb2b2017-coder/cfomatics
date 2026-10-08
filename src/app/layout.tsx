@@ -4,6 +4,7 @@ import AlliScript from "@/components/AlliScript";
 import ClientEffects from "@/components/ClientEffects";
 import CookieConsentShell from "@/components/CookieConsentShell";
 import JsonLd from "@/components/JsonLd";
+import SubscribePopup from "@/components/SubscribePopup";
 import { getSiteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -107,6 +108,7 @@ export default function RootLayout({
         />
         {children}
         <ClientEffects />
+        <SubscribePopup siteWide />
         <CookieConsentShell />
       </body>
     </html>

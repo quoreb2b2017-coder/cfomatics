@@ -3,6 +3,7 @@ import SearchBar from "@/components/SearchBar";
 import BrandLogo from "@/components/BrandLogo";
 import MobileNav from "@/components/MobileNav";
 import HeaderSpacer from "@/components/HeaderSpacer";
+import SubscribeButton from "@/components/SubscribeButton";
 import { getTopics } from "@/lib/topics";
 import type { Topic } from "@/types/database";
 
@@ -51,9 +52,7 @@ export default async function SiteHeader({
             <BrandLogo />
             <div className="mast-r">
               <SearchBar />
-              <Link href="/#nl" className="btn btn-solid mast-subscribe">
-                Subscribe
-              </Link>
+              <SubscribeButton className="btn btn-solid mast-subscribe" />
               <MobileNav topics={topicLinks} />
             </div>
           </div>
