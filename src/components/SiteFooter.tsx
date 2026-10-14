@@ -1,6 +1,7 @@
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import CookiePreferencesTrigger from "@/components/CookiePreferencesTrigger";
+import { CFOMATICS_LINKEDIN_URL } from "@/lib/site";
 import { getTopics } from "@/lib/topics";
 import type { Topic } from "@/types/database";
 
@@ -53,6 +54,15 @@ export default async function SiteFooter({
               </li>
               <li>
                 <Link href="/#nl">Newsletter</Link>
+              </li>
+              <li>
+                <a
+                  href={CFOMATICS_LINKEDIN_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  CFOmatics on LinkedIn
+                </a>
               </li>
             </ul>
           </div>

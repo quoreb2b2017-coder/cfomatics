@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Inter, Newsreader } from "next/font/google";
+import localFont from "next/font/local";
 import AlliScript from "@/components/AlliScript";
 import ClientEffects from "@/components/ClientEffects";
 import CookieConsentShell from "@/components/CookieConsentShell";
@@ -10,25 +10,48 @@ import "./globals.css";
 
 const SITE_URL = getSiteUrl();
 
-const newsreader = Newsreader({
+// Self-hosted so builds do not fetch Google Fonts. Turbopack fails when
+// Google returns an extensionless font URL (next/font/google queries have
+// exactly one entry). weight ranges are required or variable faces collapse to 400.
+const newsreader = localFont({
+  src: [
+    {
+      path: "../fonts/newsreader-latin-wght-normal.woff2",
+      weight: "200 800",
+      style: "normal",
+    },
+    {
+      path: "../fonts/newsreader-latin-wght-italic.woff2",
+      weight: "200 800",
+      style: "italic",
+    },
+  ],
   variable: "--font-newsreader",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
   display: "swap",
+  adjustFontFallback: "Times New Roman",
 });
 
-const inter = Inter({
+const inter = localFont({
+  src: "../fonts/inter-latin-wght-normal.woff2",
+  weight: "100 900",
   variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
   display: "swap",
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
+const ibmPlexMono = localFont({
+  src: [
+    {
+      path: "../fonts/ibm-plex-mono-latin-400-normal.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../fonts/ibm-plex-mono-latin-500-normal.woff2",
+      weight: "500",
+      style: "normal",
+    },
+  ],
   variable: "--font-ibm-plex-mono",
-  subsets: ["latin"],
-  weight: ["400", "500"],
   display: "swap",
 });
 

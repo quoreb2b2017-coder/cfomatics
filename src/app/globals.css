@@ -1549,6 +1549,39 @@ img {
   color: var(--line);
 }
 
+.li-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}
+
+.li-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #0a66c2;
+  color: #fff;
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1;
+  padding: 10px 16px 10px 12px;
+  border-radius: 999px;
+  text-decoration: none;
+}
+
+.li-btn:hover {
+  background: #004182;
+  color: #fff;
+}
+
+.li-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
 .art-share {
   display: flex;
   gap: 8px;
