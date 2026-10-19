@@ -7,6 +7,7 @@ import ArticleBody from "@/components/ArticleBody";
 import CoverImage from "@/components/CoverImage";
 import JsonLd from "@/components/JsonLd";
 import { ArticleGridCard } from "@/components/ArticleCard";
+import CopyLinkButton from "@/components/CopyLinkButton";
 import SubscribePopup from "@/components/SubscribePopup";
 import { getArticleBySlug, getArticlesByTopicSlug, getLatestArticles } from "@/lib/articles";
 import { parseKeywordList, hydrateArticleSeo } from "@/lib/seo";
@@ -223,24 +224,27 @@ export default async function ArticlePage({
                       </span>
                     </div>
                   </div>
-                  <div className="li-actions">
+                  <div className="li-actions" aria-label="Share">
+                    <CopyLinkButton className="li-icon" url={shareUrl} />
                     <a
-                      className="li-btn"
+                      className="li-icon li-icon--share"
                       href={linkedInShareUrl(shareUrl)}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label="Share on LinkedIn"
+                      title="Share on LinkedIn"
                     >
-                      <LinkedInMark />
-                      Share on LinkedIn
+                      <ShareIcon />
                     </a>
                     <a
-                      className="li-btn"
+                      className="li-icon li-icon--linkedin"
                       href={CFOMATICS_LINKEDIN_URL}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label="Visit CFOmatics on LinkedIn"
+                      title="CFOmatics on LinkedIn"
                     >
                       <LinkedInMark />
-                      CFOmatics on LinkedIn
                     </a>
                   </div>
                 </div>
@@ -341,6 +345,22 @@ export default async function ArticlePage({
       )}
       <SiteFooter />
     </>
+  );
+}
+
+function ShareIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none">
+      <circle cx="18" cy="5" r="2.4" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="6" cy="12" r="2.4" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="18" cy="19" r="2.4" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M8.3 10.9 15.7 6.6M8.3 13.1l7.4 4.3"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
 

@@ -1495,7 +1495,7 @@ img {
   border-top: 1px solid var(--line);
   border-bottom: none;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
@@ -1550,36 +1550,69 @@ img {
 }
 
 .li-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  width: 100%;
-}
-
-.li-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #0a66c2;
-  color: #fff;
-  font-family: var(--font-inter), sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 1;
-  padding: 10px 16px 10px 12px;
-  border-radius: 999px;
+  margin-left: auto;
+}
+
+.li-icon {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mute);
+  background: #fff;
   text-decoration: none;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  box-shadow: 0 1px 2px rgba(16, 24, 20, 0.04);
+  transition:
+    border-color 0.15s var(--ease),
+    color 0.15s var(--ease),
+    background 0.15s var(--ease),
+    box-shadow 0.15s var(--ease);
 }
 
-.li-btn:hover {
-  background: #004182;
+.li-icon:hover {
+  color: var(--ink);
+  border-color: #c9cec8;
+  background: var(--paper-2);
+}
+
+.li-icon--share {
+  color: #0a66c2;
+  border-color: #9fc0e4;
+  background: #f3f8fc;
+}
+
+.li-icon--share:hover {
+  color: #004182;
+  border-color: #0a66c2;
+  background: #e8f1fa;
+}
+
+.li-icon--linkedin {
   color: #fff;
+  border-color: #0a66c2;
+  background: #0a66c2;
+  box-shadow: 0 1px 2px rgba(10, 102, 194, 0.28);
 }
 
-.li-btn svg {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
+.li-icon--linkedin:hover {
+  color: #fff;
+  border-color: #004182;
+  background: #004182;
+}
+
+.li-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 
 .art-share {
