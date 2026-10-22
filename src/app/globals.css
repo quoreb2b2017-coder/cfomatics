@@ -5891,6 +5891,70 @@ body:has(.res-sponsor) .cookie-bar { bottom: 64px; z-index: 80; }
   border-radius: 12px;
   background: #fbfbfa;
 }
+.wp-q-head,
+.wp-q-opt-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.wp-q-head h4 { margin: 0; }
+.wp-q-opt-head {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #5c6b7a;
+}
+.wp-q-line {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 32px;
+  gap: 8px;
+  align-items: center;
+}
+.wp-q-n {
+  color: #8b97a3;
+  font-size: 13px;
+  font-weight: 650;
+  text-align: center;
+}
+.wp-q-x,
+.wp-add,
+.wp-add-link {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+}
+.wp-q-x {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: #6b7785;
+  font-size: 18px;
+  line-height: 1;
+}
+.wp-q-x:hover { background: #f3f4f2; color: #9b2c2c; }
+.wp-add {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid #c5e4d6;
+  background: #fff;
+  color: var(--emerald);
+}
+.wp-add:hover:not(:disabled) { background: var(--emerald); color: #fff; }
+.wp-add:disabled { opacity: 0.5; cursor: not-allowed; }
+.wp-add-link { color: var(--emerald); padding: 0; }
+.wp-add-link:hover { color: var(--emerald-d); }
+.wp-q-hint {
+  margin: 0;
+  color: var(--emerald-d);
+  font-size: 13px;
+  font-weight: 650;
+}
 .wp-field-meta,
 .wp-consent-flags,
 .wp-inline-actions {
@@ -6014,7 +6078,6 @@ body:has(.res-sponsor) .cookie-bar { bottom: 64px; z-index: 80; }
 .wp-check { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; }
 .wp-ghost,
 .wp-consent-flags button,
-.wp-question button,
 .wp-save {
   border: 1px solid var(--line);
   background: #fff;
@@ -6043,14 +6106,12 @@ body:has(.res-sponsor) .cookie-bar { bottom: 64px; z-index: 80; }
 }
 .wp-ghost:disabled { opacity: 0.5; cursor: not-allowed; }
 .wp-field-row > .wp-ghost,
-.wp-question > button,
 .wp-consent-flags > button {
   color: #9b2c2c;
   border-color: #f0d0d0;
   background: #fff;
 }
 .wp-field-row > .wp-ghost:hover,
-.wp-question > button:hover,
 .wp-consent-flags > button:hover {
   background: #fdf2f2;
   border-color: #e3a3a3;

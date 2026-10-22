@@ -461,43 +461,95 @@ export default function WhitePapersAdmin({ initial }: { initial: ResourceItem[] 
                   Add checkbox
                 </button>
 
-                <h4>Download form questions</h4>
-                <p className="admin-td-sub">Every question is required on the public form.</p>
-                {draft.questions.map((question, index) => (
-                  <div key={index} className="wp-question">
-                    <input
-                      value={question.text}
-                      placeholder="Question"
-                      onChange={(event) => {
-                        const questions = [...draft.questions];
-                        questions[index] = { ...question, text: event.target.value };
-                        patch({ questions });
-                      }}
-                    />
-                    <textarea
-                      value={question.options.join("\n")}
-                      placeholder="One answer option per line. Two or more become a dropdown."
-                      onChange={(event) => {
-                        const questions = [...draft.questions];
-                        questions[index] = { ...question, options: event.target.value.split("\n") };
-                        patch({ questions });
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => patch({ questions: draft.questions.filter((_, i) => i !== index) })}
-                    >
-                      Remove question
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="wp-ghost"
-                  onClick={() => patch({ questions: [...draft.questions, { text: "", options: [] }] })}
-                >
-                  Add question
-                </button>
+                <div className="wp-q-head">
+                  <h4>Download form questions</h4>
+                  <button
+                    type="button"
+                    className="wp-add"
+                    disabled={draft.questions.length >= 20}
+                    onClick={() => patch({ questions: [...draft.questions, { text: "", options: [] }] })}
+                  >
+                    + Add
+                  </button>
+                </div>
+                <p className="admin-td-sub">
+                  Optional. Each question appears on the public download form. Add 2 or more options to show a dropdown. Leave options empty for a text field. Maximum 20 questions.
+                </p>
+                {draft.questions.map((question, index) => {
+                  const filledOptions = question.options.filter((option) => option.trim()).length;
+                  return (
+                    <div key={index} className="wp-question">
+                      <div className="wp-q-line">
+                        <span className="wp-q-n">{index + 1}</span>
+                        <input
+                          value={question.text}
+                          placeholder="e.g. What is your fleet size?"
+                          onChange={(event) => {
+                            const questions = [...draft.questions];
+                            questions[index] = { ...question, text: event.target.value };
+                            patch({ questions });
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="wp-q-x"
+                          aria-label="Remove question"
+                          onClick={() => patch({ questions: draft.questions.filter((_, i) => i !== index) })}
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div className="wp-q-opt-head">
+                        <span>Dropdown options (optional)</span>
+                        <button
+                          type="button"
+                          className="wp-add-link"
+                          onClick={() => {
+                            const questions = [...draft.questions];
+                            questions[index] = { ...question, options: [...question.options, ""] };
+                            patch({ questions });
+                          }}
+                        >
+                          + Add option
+                        </button>
+                      </div>
+                      {question.options.map((option, optionIndex) => (
+                        <div key={optionIndex} className="wp-q-line">
+                          <span className="wp-q-n">{optionIndex + 1}.</span>
+                          <input
+                            value={option}
+                            placeholder="e.g. 1–10 vehicles"
+                            onChange={(event) => {
+                              const options = [...question.options];
+                              options[optionIndex] = event.target.value;
+                              const questions = [...draft.questions];
+                              questions[index] = { ...question, options };
+                              patch({ questions });
+                            }}
+                          />
+                          <button
+                            type="button"
+                            className="wp-q-x"
+                            aria-label="Remove option"
+                            onClick={() => {
+                              const questions = [...draft.questions];
+                              questions[index] = {
+                                ...question,
+                                options: question.options.filter((_, i) => i !== optionIndex),
+                              };
+                              patch({ questions });
+                            }}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                      {filledOptions === 1 ? (
+                        <p className="wp-q-hint">Add one more option to enable a dropdown on the public form.</p>
+                      ) : null}
+                    </div>
+                  );
+                })}
               </section>
 
               <section className="wp-block">
