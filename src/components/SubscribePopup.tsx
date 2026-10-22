@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   OPEN_SUBSCRIBE_EVENT,
   SUBSCRIBED_KEY,
   hasContextualPopup,
   registerContextualPopup,
+  leadSource,
   submitSubscribe,
 } from "@/lib/subscribe-client";
 
@@ -27,6 +29,7 @@ export default function SubscribePopup({
   /** Site-wide host: never auto-opens, only responds to openSubscribePopup(). */
   siteWide?: boolean;
 }) {
+  const pathname = usePathname();
   const titleId = useId();
   const inputId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -85,6 +88,10 @@ export default function SubscribePopup({
     setError("");
     setPending(true);
     try {
+      const lead = leadSource(pathname || "/", {
+        slug: articleSlug,
+        title: articleTitle,
+      });
       await submitSubscribe({
         email,
         source: siteWide ? "navbar" : "popup",
@@ -94,6 +101,9 @@ export default function SubscribePopup({
         topicId,
         topicSlug,
         topicName,
+        sourceType: lead.sourceType,
+        sourceSlug: lead.sourceSlug,
+        sourceTitle: lead.sourceTitle || articleTitle || null,
       });
       try {
         window.localStorage.setItem(SUBSCRIBED_KEY, "1");

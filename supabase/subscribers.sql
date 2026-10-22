@@ -16,6 +16,15 @@ create unique index if not exists subscribers_email_lower_idx
 alter table public.subscribers
   add column if not exists unsubscribe_reason text;
 
+alter table public.subscribers
+  add column if not exists source_type text;
+
+alter table public.subscribers
+  add column if not exists source_slug text;
+
+alter table public.subscribers
+  add column if not exists source_title text;
+
 create table if not exists public.subscriber_interests (
   id uuid primary key default gen_random_uuid(),
   subscriber_id uuid not null references public.subscribers (id) on delete cascade,

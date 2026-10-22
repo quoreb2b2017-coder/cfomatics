@@ -14,7 +14,83 @@ export type SubscribeInput = {
   topicId?: string | null;
   topicSlug?: string | null;
   topicName?: string | null;
+  sourceType?: string | null;
+  sourceSlug?: string | null;
+  sourceTitle?: string | null;
 };
+
+export const ALREADY_SUBSCRIBED =
+  "This email is already subscribed. Enter a new email.";
+
+type LeadSource = {
+  type: string | null;
+  slug: string | null;
+  title: string | null;
+  reason?: string | null;
+};
+
+function parseLeadNote(raw: string | null | undefined): LeadSource | null {
+  if (!raw) return null;
+  try {
+    const data = JSON.parse(raw) as Record<string, unknown>;
+    if (data.kind !== "lead-source") return null;
+    return {
+      type: typeof data.type === "string" ? data.type : null,
+      slug: typeof data.slug === "string" ? data.slug : null,
+      title: typeof data.title === "string" ? data.title : null,
+      reason: typeof data.reason === "string" ? data.reason : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function leadNote(source: LeadSource) {
+  return JSON.stringify({
+    kind: "lead-source",
+    type: source.type,
+    slug: source.slug,
+    title: source.title,
+    reason: source.reason ?? null,
+  });
+}
+
+async function writeLeadSource(
+  admin: ReturnType<typeof createAdminClient>,
+  subscriberId: string,
+  source: LeadSource,
+) {
+  const { error } = await admin
+    .from("subscribers")
+    .update({
+      source_type: source.type,
+      source_slug: source.slug,
+      source_title: source.title,
+    })
+    .eq("id", subscriberId);
+
+  if (!error) return;
+  if (!/source_type|source_slug|source_title|column/i.test(error.message)) {
+    throw new Error(error.message);
+  }
+
+  const { data } = await admin
+    .from("subscribers")
+    .select("unsubscribe_reason")
+    .eq("id", subscriberId)
+    .maybeSingle();
+  const previous = parseLeadNote(data?.unsubscribe_reason);
+  const { error: noteError } = await admin
+    .from("subscribers")
+    .update({
+      unsubscribe_reason: leadNote({
+        ...source,
+        reason: previous?.reason ?? null,
+      }),
+    })
+    .eq("id", subscriberId);
+  if (noteError) throw new Error(noteError.message);
+}
 
 function normalizeEmail(raw: string): string {
   return raw.trim().toLowerCase();
@@ -54,13 +130,21 @@ export async function saveSubscriber(input: SubscribeInput) {
       throw new Error(insertError?.message ?? "Could not save subscriber");
     }
     subscriberId = inserted.id;
-  } else if (existing?.unsubscribed_at) {
+  } else if (!existing?.unsubscribed_at) {
+    throw new Error(ALREADY_SUBSCRIBED);
+  } else {
     const { error } = await admin
       .from("subscribers")
       .update({ unsubscribed_at: null })
       .eq("id", subscriberId);
     if (error) throw new Error(error.message);
   }
+
+  await writeLeadSource(admin, subscriberId, {
+    type: input.sourceType || input.source || "site",
+    slug: input.sourceSlug || input.articleSlug || input.topicSlug || null,
+    title: input.sourceTitle || input.articleTitle || input.topicName || null,
+  });
 
   const articleId = input.articleId || null;
   const topicId = input.topicId || null;
@@ -111,22 +195,42 @@ export async function unsubscribeByEmail(
   const admin = createAdminClient();
   const { data: existing, error: lookupError } = await admin
     .from("subscribers")
-    .select("id")
+    .select("id, unsubscribe_reason")
     .eq("email", email)
     .maybeSingle();
 
   if (lookupError) throw new Error(lookupError.message);
   if (!existing) {
-    // Do not reveal whether the email is on the list.
-    return { found: false };
+    const typedNew = reason?.trim().slice(0, 280) || null;
+    const inserted = await admin.from("subscribers").insert({
+      email,
+      unsubscribed_at: new Date().toISOString(),
+      unsubscribe_reason: typedNew,
+      source_type: "site",
+      source_title: "Unsubscribe",
+    });
+    if (inserted.error && /source_type|source_title|unsubscribe_reason|column/i.test(inserted.error.message)) {
+      const retry = await admin.from("subscribers").insert({
+        email,
+        unsubscribed_at: new Date().toISOString(),
+      });
+      if (retry.error) throw new Error(retry.error.message);
+    } else if (inserted.error) {
+      throw new Error(inserted.error.message);
+    }
+    return { found: true };
   }
 
+  const typed = reason?.trim().slice(0, 280) || null;
+  const previous = parseLeadNote(existing.unsubscribe_reason);
   const patch: { unsubscribed_at: string; unsubscribe_reason?: string | null } =
     {
       unsubscribed_at: new Date().toISOString(),
     };
-  if (reason && reason.trim()) {
-    patch.unsubscribe_reason = reason.trim().slice(0, 280);
+  if (previous) {
+    patch.unsubscribe_reason = leadNote({ ...previous, reason: typed });
+  } else if (typed) {
+    patch.unsubscribe_reason = typed;
   }
 
   const { error } = await admin
@@ -148,6 +252,49 @@ export async function unsubscribeByEmail(
   }
 
   return { found: true };
+}
+
+/** Step 2 marketing consent. A checked opt-out unsubscribes. An unchecked box keeps mail on. */
+export async function setDownloadSubscription(
+  emailRaw: string,
+  optedOut: boolean,
+  source: { type: string; slug: string | null; title: string | null },
+) {
+  const email = normalizeEmail(emailRaw);
+  if (!EMAIL_RE.test(email) || email.length > 254) return;
+  const admin = createAdminClient();
+  const { data: existing, error } = await admin
+    .from("subscribers")
+    .select("id, unsubscribed_at")
+    .eq("email", email)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+
+  const unsubscribedAt = optedOut ? new Date().toISOString() : null;
+
+  if (!existing) {
+    const { data: inserted, error: insertError } = await admin
+      .from("subscribers")
+      .insert({
+        email,
+        unsubscribed_at: unsubscribedAt,
+      })
+      .select("id")
+      .single();
+    if (insertError || !inserted) {
+      throw new Error(insertError?.message ?? "Could not save email");
+    }
+    await writeLeadSource(admin, inserted.id, source);
+    return;
+  }
+
+  const { error: updateError } = await admin
+    .from("subscribers")
+    .update({ unsubscribed_at: unsubscribedAt })
+    .eq("id", existing.id);
+  if (updateError) throw new Error(updateError.message);
+
+  await writeLeadSource(admin, existing.id, source);
 }
 
 export async function notifySubscribersOfArticle(articleId: string) {

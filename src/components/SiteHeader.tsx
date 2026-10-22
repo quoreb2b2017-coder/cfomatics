@@ -3,6 +3,7 @@ import SearchBar from "@/components/SearchBar";
 import BrandLogo from "@/components/BrandLogo";
 import MobileNav from "@/components/MobileNav";
 import HeaderSpacer from "@/components/HeaderSpacer";
+import ResourcesNav from "@/components/ResourcesNav";
 import SubscribeButton from "@/components/SubscribeButton";
 import { getTopics } from "@/lib/topics";
 import type { Topic } from "@/types/database";
@@ -59,15 +60,15 @@ export default async function SiteHeader({
         </div>
 
         <nav className="snav" aria-label="Topics">
-          <div className="wrap snav-in">
-            {topicLinks.map((topic) => (
-              <Link key={topic.id} href={`/topic/${topic.slug}`}>
-                {topic.name}
-              </Link>
-            ))}
-            <Link href="/resources" className="res">
-              Resources
-            </Link>
+          <div className="wrap snav-bar">
+            <div className="snav-in">
+              {topicLinks.map((topic) => (
+                <Link key={topic.id} href={`/topic/${topic.slug}`}>
+                  {topic.name}
+                </Link>
+              ))}
+              <ResourcesNav />
+            </div>
           </div>
         </nav>
       </header>

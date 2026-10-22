@@ -10,6 +10,9 @@ export type SubscribePayload = {
   topicId?: string | null;
   topicSlug?: string | null;
   topicName?: string | null;
+  sourceType?: string | null;
+  sourceSlug?: string | null;
+  sourceTitle?: string | null;
 };
 
 export async function submitSubscribe(payload: SubscribePayload) {
@@ -22,6 +25,46 @@ export async function submitSubscribe(payload: SubscribePayload) {
   if (!res.ok) {
     throw new Error(data.error || "Could not subscribe");
   }
+}
+
+const SECTION_TYPE: Record<string, string> = {
+  whitepapers: "whitepaper",
+  reports: "report",
+  "case-studies": "case_study",
+  guides: "guide",
+  webinars: "webinar",
+};
+
+export function leadSource(
+  pathname: string,
+  hints?: { slug?: string | null; title?: string | null },
+) {
+  const article = pathname.match(/^\/article\/([^/]+)/);
+  if (article) {
+    return {
+      sourceType: "blog",
+      sourceSlug: hints?.slug || article[1],
+      sourceTitle: hints?.title || null,
+    };
+  }
+  if (pathname === "/blog" || pathname.startsWith("/blog/")) {
+    return { sourceType: "blog", sourceSlug: null, sourceTitle: "Blog" };
+  }
+  const resource = pathname.match(
+    /^\/resources\/(whitepapers|reports|case-studies|guides|webinars)\/([^/]+)/,
+  );
+  if (resource) {
+    return {
+      sourceType: SECTION_TYPE[resource[1]] ?? "site",
+      sourceSlug: hints?.slug || resource[2],
+      sourceTitle: hints?.title || null,
+    };
+  }
+  return {
+    sourceType: "site",
+    sourceSlug: hints?.slug || null,
+    sourceTitle: hints?.title || null,
+  };
 }
 
 export function openSubscribePopup() {

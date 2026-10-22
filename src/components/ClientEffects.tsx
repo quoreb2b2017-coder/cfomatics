@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { SUBSCRIBED_KEY, submitSubscribe } from "@/lib/subscribe-client";
+import { SUBSCRIBED_KEY, leadSource, submitSubscribe } from "@/lib/subscribe-client";
 
 export default function ClientEffects() {
   const pathname = usePathname();
@@ -40,15 +40,26 @@ export default function ClientEffects() {
         b.disabled = true;
       }
 
+      const lead = leadSource(pathname, {
+        slug: f.dataset.articleSlug || f.dataset.sourceSlug || null,
+        title:
+          f.dataset.articleTitle ||
+          f.dataset.sourceTitle ||
+          document.querySelector("h1")?.textContent?.trim() ||
+          null,
+      });
       void submitSubscribe({
         email,
-        source: f.dataset.source || "site",
+        source: f.dataset.source || lead.sourceType || "site",
         articleId: f.dataset.articleId || null,
-        articleSlug: f.dataset.articleSlug || null,
-        articleTitle: f.dataset.articleTitle || null,
+        articleSlug: f.dataset.articleSlug || lead.sourceSlug,
+        articleTitle: f.dataset.articleTitle || lead.sourceTitle,
         topicId: f.dataset.topicId || null,
         topicSlug: f.dataset.topicSlug || null,
         topicName: f.dataset.topicName || null,
+        sourceType: lead.sourceType,
+        sourceSlug: lead.sourceSlug,
+        sourceTitle: lead.sourceTitle,
       })
         .then(() => {
           try {
@@ -56,19 +67,23 @@ export default function ClientEffects() {
           } catch {
             // ignore
           }
-          if (b) b.textContent = "✓ Subscribed";
-          f.querySelectorAll("input").forEach((i) => {
-            if ((i as HTMLInputElement).type !== "checkbox") {
-              (i as HTMLInputElement).value = "";
-            }
-          });
+          showFormNote(f, "");
+          if (input) input.value = "";
+          if (b) {
+            b.textContent = "✓ Subscribed";
+            b.disabled = false;
+            window.setTimeout(() => {
+              if (prevLabel) b.textContent = prevLabel;
+            }, 1200);
+          }
         })
-        .catch(() => {
+        .catch((err: unknown) => {
+          const message = err instanceof Error ? err.message : "Could not subscribe. Try again.";
           if (b) {
             b.textContent = prevLabel || "Subscribe";
             b.disabled = false;
           }
-          window.alert("Could not subscribe. Try again.");
+          showFormNote(f, message);
         });
     };
 
@@ -84,4 +99,18 @@ export default function ClientEffects() {
   }, [pathname]);
 
   return null;
+}
+
+function showFormNote(form: HTMLFormElement, message: string) {
+  let note = form.querySelector<HTMLParagraphElement>(".sub-form-note");
+  if (!message) {
+    note?.remove();
+    return;
+  }
+  if (!note) {
+    note = document.createElement("p");
+    note.className = "sub-form-note";
+    form.appendChild(note);
+  }
+  note.textContent = message;
 }

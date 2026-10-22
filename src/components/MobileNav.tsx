@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import SubscribeButton from "@/components/SubscribeButton";
+import { RESOURCE_SECTIONS } from "@/lib/resources";
 
 type TopicLink = { id: string; slug: string; name: string };
 
@@ -72,6 +73,15 @@ export default function MobileNav({
             >
               Resources
             </Link>
+            {RESOURCE_SECTIONS.map((section) => (
+              <Link
+                key={section.key}
+                href={section.href}
+                onClick={() => setOpen(false)}
+              >
+                {section.label}
+              </Link>
+            ))}
             <Link href="/about" onClick={() => setOpen(false)}>
               About
             </Link>

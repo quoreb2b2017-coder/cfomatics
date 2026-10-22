@@ -1,25 +1,49 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import RowDeleteButton from "@/components/admin/RowDeleteButton";
 import { isMailConfigured } from "@/lib/email";
+import { leadFromNote, leadLabel } from "@/lib/resources";
 import type { SubscriberInterest } from "@/types/database";
+
+function reasonText(raw?: string | null) {
+  if (!raw) return "—";
+  const note = leadFromNote(raw);
+  if (note?.reason) return note.reason;
+  if (note) return "—";
+  return raw;
+}
 
 type SubscriberRow = {
   id: string;
   email: string;
   created_at: string;
   unsubscribed_at: string | null;
+  unsubscribe_reason?: string | null;
+  source_type?: string | null;
+  source_slug?: string | null;
+  source_title?: string | null;
   interests: SubscriberInterest[] | null;
 };
 
 export default async function AdminSubscribersPage() {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  const withSource = await supabase
     .from("subscribers")
     .select(
-      "id, email, created_at, unsubscribed_at, interests:subscriber_interests(*)",
+      "id, email, created_at, unsubscribed_at, unsubscribe_reason, source_type, source_slug, source_title, interests:subscriber_interests(*)",
     )
     .order("created_at", { ascending: false });
+  const fallback =
+    withSource.error && /source_type|column/i.test(withSource.error.message)
+      ? await supabase
+          .from("subscribers")
+          .select(
+            "id, email, created_at, unsubscribed_at, unsubscribe_reason, interests:subscriber_interests(*)",
+          )
+          .order("created_at", { ascending: false })
+      : null;
+  const data = fallback ? fallback.data : withSource.data;
+  const error = fallback ? fallback.error : withSource.error;
 
   const subscribers = (data ?? []) as SubscriberRow[];
   const mailReady = isMailConfigured();
@@ -28,7 +52,7 @@ export default async function AdminSubscribersPage() {
     <>
       <AdminPageHeader
         kicker="Audience"
-        title="Subscribers"
+        title="Subscribes"
         description={`${subscribers.length} email${subscribers.length === 1 ? "" : "s"} captured from the public site.`}
       />
 
@@ -50,66 +74,47 @@ export default async function AdminSubscribersPage() {
       )}
 
       <div className="admin-card admin-card--flush">
-        <div className="admin-table-wrap">
-          <table className="admin-table">
+        <div className="admin-table-scroll">
+          <table className="admin-table admin-table--audience">
             <thead>
               <tr>
                 <th>Email</th>
-                <th>Subscribed regarding</th>
-                <th>Joined</th>
+                <th>Page</th>
                 <th>Status</th>
+                <th>Reason</th>
+                <th>Date</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {subscribers.map((row) => {
-                const interests = row.interests ?? [];
+                const note = leadFromNote(row.unsubscribe_reason);
+                const page =
+                  leadLabel(row.source_type || note?.type, row.source_title || note?.title) ||
+                  row.interests?.find((interest) => interest.article_title)?.article_title ||
+                  "Site";
                 return (
                   <tr key={row.id}>
                     <td>
                       <a href={`mailto:${row.email}`}>{row.email}</a>
                     </td>
-                    <td>
-                      {interests.length === 0 ? (
-                        <span className="admin-td-sub">All CFOmatics stories</span>
-                      ) : (
-                        <ul className="admin-sub-blogs">
-                          {interests.map((interest) => (
-                            <li key={interest.id}>
-                              {interest.article_slug && interest.article_title ? (
-                                <Link href={`/article/${interest.article_slug}`}>
-                                  {interest.article_title}
-                                </Link>
-                              ) : (
-                                <span>
-                                  {interest.topic_name || "All CFOmatics stories"}
-                                </span>
-                              )}
-                              {interest.topic_name && interest.article_title ? (
-                                <div className="admin-td-sub">
-                                  {interest.topic_name}
-                                </div>
-                              ) : null}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
+                    <td>{page}</td>
+                    <td className={row.unsubscribed_at ? "admin-status-out" : "admin-status-in"}>
+                      {row.unsubscribed_at ? "Unsubscribed" : "Subscribed"}
                     </td>
+                    <td className="admin-td-reason">{reasonText(row.unsubscribe_reason)}</td>
                     <td className="admin-td-now">
-                      {new Date(row.created_at).toLocaleString()}
+                      {new Date(row.unsubscribed_at || row.created_at).toLocaleString()}
                     </td>
                     <td>
-                      <span
-                        className={`admin-badge ${row.unsubscribed_at ? "draft" : "published"}`}
-                      >
-                        {row.unsubscribed_at ? "unsubscribed" : "active"}
-                      </span>
+                      <RowDeleteButton id={row.id} kind="subscribe" />
                     </td>
                   </tr>
                 );
               })}
               {subscribers.length === 0 && !error && (
                 <tr>
-                  <td colSpan={4} className="admin-empty">
+                  <td colSpan={6} className="admin-empty">
                     No subscribers yet. Emails appear here after someone
                     submits a subscribe form.
                   </td>

@@ -83,6 +83,91 @@ export type Subscriber = {
   unsubscribed_at: string | null;
   unsubscribe_token: string;
   unsubscribe_reason?: string | null;
+  source_type?: string | null;
+  source_slug?: string | null;
+  source_title?: string | null;
+  created_at: string;
+};
+
+export type ResourceCategory =
+  | "whitepaper"
+  | "report"
+  | "case_study"
+  | "webinar"
+  | "guide";
+
+export type ResourceField = {
+  label: string;
+  key: string;
+  type: "text" | "tel" | "email";
+  required: boolean;
+};
+
+export type ResourceConsent = {
+  text: string;
+  required: boolean;
+  visible: boolean;
+  role?: "terms" | "partners" | "optOut" | "extra";
+  url?: string;
+  linkLabel?: string;
+};
+
+export type ResourceQuestion = {
+  text: string;
+  options: string[];
+};
+
+export type ResourceFormConfig = {
+  fields?: ResourceField[];
+  fieldsExplicitlyEmpty?: boolean;
+  emailNote?: string;
+  terms?: ResourceConsent;
+  partners?: ResourceConsent;
+  optOut?: ResourceConsent;
+  /** Older uploads stored three checkboxes here. */
+  consents?: ResourceConsent[];
+  footer?: string;
+  extras?: ResourceConsent[];
+  questions?: ResourceQuestion[];
+};
+
+export type ResourceInsideSection = {
+  heading: string;
+  body: string;
+};
+
+export type ResourceItem = {
+  id: string;
+  title: string;
+  description: string;
+  category: ResourceCategory;
+  vertical: string;
+  vertical_slug: string;
+  slug: string;
+  offered_by: string;
+  author_name: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  keywords: string | null;
+  overview: string | null;
+  inside_sections: ResourceInsideSection[];
+  pdf_path: string | null;
+  pdf_url: string | null;
+  cover_path: string | null;
+  cover_url: string | null;
+  form_config: ResourceFormConfig;
+  status: "published" | "draft";
+  created_at: string;
+  updated_at: string;
+};
+
+export type ResourceDownload = {
+  id: string;
+  resource_id: string;
+  email: string;
+  fields: Record<string, string>;
+  answers: Record<string, string>;
+  profile_completed?: boolean;
   created_at: string;
 };
 
@@ -251,6 +336,35 @@ export type Database = {
         Insert: Partial<ConsentEvent> & { choice: ConsentEventChoice };
         Update: Partial<ConsentEvent>;
         Relationships: never[];
+      };
+      resources: {
+        Row: ResourceItem;
+        Insert: Partial<ResourceItem> & {
+          title: string;
+          category: ResourceCategory;
+          vertical: string;
+          vertical_slug: string;
+          slug: string;
+        };
+        Update: Partial<ResourceItem>;
+        Relationships: never[];
+      };
+      resource_downloads: {
+        Row: ResourceDownload;
+        Insert: Partial<ResourceDownload> & {
+          resource_id: string;
+          email: string;
+        };
+        Update: Partial<ResourceDownload>;
+        Relationships: [
+          {
+            foreignKeyName: "resource_downloads_resource_id_fkey";
+            columns: ["resource_id"];
+            isOneToOne: false;
+            referencedRelation: "resources";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       site_analytics_events: {
         Row: SiteAnalyticsEvent;

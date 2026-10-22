@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { saveSubscriber } from "@/lib/subscribers";
+import { ALREADY_SUBSCRIBED, saveSubscriber } from "@/lib/subscribers";
 
 export async function POST(request: Request) {
   let body: unknown;
@@ -28,11 +28,18 @@ export async function POST(request: Request) {
       topicId: typeof data.topicId === "string" ? data.topicId : null,
       topicSlug: typeof data.topicSlug === "string" ? data.topicSlug : null,
       topicName: typeof data.topicName === "string" ? data.topicName : null,
+      sourceType: typeof data.sourceType === "string" ? data.sourceType : null,
+      sourceSlug: typeof data.sourceSlug === "string" ? data.sourceSlug : null,
+      sourceTitle: typeof data.sourceTitle === "string" ? data.sourceTitle : null,
     });
     return NextResponse.json({ ok: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Could not subscribe";
-    const status = message.includes("valid work email") ? 400 : 500;
+    const status = message === ALREADY_SUBSCRIBED
+      ? 409
+      : message.includes("valid work email")
+        ? 400
+        : 500;
     return NextResponse.json({ error: message }, { status });
   }
 }

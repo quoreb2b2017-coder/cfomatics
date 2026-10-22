@@ -37,6 +37,16 @@ const MANAGE: NavLink[] = [
     ),
   },
   {
+    href: "/admin/white-papers",
+    label: "White papers",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M6 3h8l4 4v14H6z" />
+        <path d="M14 3v5h5M8 13h8M8 17h5" />
+      </svg>
+    ),
+  },
+  {
     href: "/admin/topics",
     label: "Topics",
     icon: (
@@ -50,11 +60,22 @@ const MANAGE: NavLink[] = [
 const AUDIENCE: NavLink[] = [
   {
     href: "/admin/subscribers",
-    label: "Subscribers",
+    label: "Subscribes",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
         <path d="M4 6h16v12H4z" />
         <path d="M4 7l8 6 8-6" />
+      </svg>
+    ),
+  },
+  {
+    href: "/admin/downloads",
+    label: "Downloads",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M12 4v10" />
+        <path d="M8 10l4 4 4-4" />
+        <path d="M5 19h14" />
       </svg>
     ),
   },

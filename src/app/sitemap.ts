@@ -52,6 +52,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.5,
     },
+    { url: `${site}/blog`, changeFrequency: "daily", priority: 0.6 },
+    { url: `${site}/resources/whitepapers`, changeFrequency: "weekly", priority: 0.5 },
+    { url: `${site}/resources/reports`, changeFrequency: "weekly", priority: 0.5 },
+    { url: `${site}/resources/case-studies`, changeFrequency: "weekly", priority: 0.5 },
+    { url: `${site}/resources/guides`, changeFrequency: "weekly", priority: 0.4 },
+    { url: `${site}/resources/webinars`, changeFrequency: "weekly", priority: 0.5 },
   ];
 
   const topicPages: MetadataRoute.Sitemap = (topics ?? []).map((t) => ({

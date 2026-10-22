@@ -1,6 +1,7 @@
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import CookiePreferencesTrigger from "@/components/CookiePreferencesTrigger";
+import { RESOURCE_SECTIONS } from "@/lib/resources";
 import { CFOMATICS_LINKEDIN_URL } from "@/lib/site";
 import { getTopics } from "@/lib/topics";
 import type { Topic } from "@/types/database";
@@ -50,8 +51,13 @@ export default async function SiteFooter({
                 <Link href="/about#standards">Editorial standards</Link>
               </li>
               <li>
-                <Link href="/resources">Resource library</Link>
+                <Link href="/resources">Resources</Link>
               </li>
+              {RESOURCE_SECTIONS.map((section) => (
+                <li key={section.key}>
+                  <Link href={section.href}>{section.label}</Link>
+                </li>
+              ))}
               <li>
                 <Link href="/#nl">Newsletter</Link>
               </li>
