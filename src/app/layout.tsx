@@ -105,6 +105,14 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${newsreader.variable} ${inter.variable} ${ibmPlexMono.variable} h-full antialiased`}
     >
+      <head>
+        {/* Raw tag, not next/script: AdSense looks for this exact script in the HTML <head>. */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9744557344146713"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-paper text-ink">
         <AlliScript />
         <JsonLd
